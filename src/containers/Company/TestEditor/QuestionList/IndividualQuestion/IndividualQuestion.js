@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import shortid from "shortid";
 
 import EditQuestion from "../../EditQuestion";
 import ActionButtons from "../../../../../components/UI/Buttons/ActionButtons";
@@ -17,6 +18,10 @@ class IndividualQuestion extends Component {
 
     this.toggleEditQuestion = this.toggleEditQuestion.bind(this);
     this.deleteQuestion = this.deleteQuestion.bind(this);
+  }
+
+  componentWillMount() {
+    console.log("QUESTION:", this.props.question.body)
   }
 
   toggleEditQuestion() {
@@ -70,66 +75,81 @@ class IndividualQuestion extends Component {
     );
   };
 
-  render() {
-    if (this.state.isLoading) {
-      return <Spinner />;
-    }
+  renderBody = question =>
+    <div>
+      {
+        question.body
+          .split(/(<code>(.|\n|\t)+<\/code>)/)
+          .map(s =>
+            /^<code>(.|\n|\t)+<\/code>$/.test(s) ?
+              <code key={shortid.generate()}>
+                {s.slice(6, -7)}
+              </code> : <p key={shortid.generate()}>{s}</p>
+          )
+      }
+    </div>
 
-    if (this.state.isError) {
+  renderOptions = options =>
+    options.map((x, i) => {
+      let highlighter = {};
+      if (x.correct) {
+        highlighter = {
+          color: "green"
+        };
+      }
+      return (
+        <div key={x.id}>
+          <h6>Option {i + 1}:</h6>
+          <strong style={highlighter}>
+            {
+              x.answer
+                .split(/(<code>(.|\n|\t)+<\/code>)/)
+                .map(s =>
+                  /^<code>(.|\n|\t)+<\/code>$/.test(s) ?
+                    <code key={shortid.generate()}>
+                      {s.slice(6, -7)}
+                    </code> : <p key={shortid.generate()}>{s}</p>
+              )
+            }
+          </strong>
+        </div>
+      );
+    })
+
+  render() {
+    const {
+      isLoading,
+      isError,
+      editQuestionMounted
+    } = this.state;
+
+    const {
+      question,
+      test,
+      jobId,
+      editQuestionInState,
+      token,
+      index
+    } = this.props;
+
+    if (isError) {
       return <p>Error</p>;
     }
 
-    let question = "";
     let editQuestion = "";
     let actionBtns = "";
-    if (this.state.editQuestionMounted) {
+    if (editQuestionMounted) {
       editQuestion = (
         <EditQuestion
-          question={this.props.question}
+          question={question}
           toggleEditQuestion={this.toggleEditQuestion}
-          test={this.props.test}
-          jobId={this.props.jobId}
-          editQuestionInState={this.props.editQuestionInState}
-          token={this.props.token}
+          test={test}
+          jobId={jobId}
+          editQuestionInState={editQuestionInState}
+          token={token}
         />
       );
     } else {
-      switch (this.props.question.type) {
-        case "OPEN_RESPONSE":
-          question = (
-            <div>
-              <h5>
-                {this.props.index + 1}. {this.props.question.body}
-              </h5>
-            </div>
-          );
-          break;
-        case "MULTIPLE_CHOICE":
-          question = (
-            <div>
-              <h5>
-                {this.props.index + 1}. {this.props.question.body}
-              </h5>
-              {this.props.question.options.map(x => {
-                let highlighter = {};
-                if (x.correct) {
-                  highlighter = {
-                    color: "green"
-                  };
-                }
-                return (
-                  <div key={x.id}>
-                    <strong style={highlighter}>{x.answer}</strong>
-                  </div>
-                );
-              })}
-            </div>
-          );
-          break;
-        default:
-          console.error("Invalid question type");
-          return <p>Error</p>;
-      }
       actionBtns = (
         <ActionButtons
           isEditing={false}
@@ -142,12 +162,22 @@ class IndividualQuestion extends Component {
     return (
       <div className="indyquestion">
         <span>
-          {this.state.isLoading ? (
+          {isLoading ? (
             <Spinner />
           ) : (
             <div>
-              {question}
-              {editQuestion}
+              <h3>Question {index + 1}</h3>
+              <hr/>
+              <pre style={{ fontFamily: 'sans-serif' }}>
+                <div>{ this.renderBody(question) }</div>
+                <div>
+                  {
+                    question.type === 'MULTIPLE_CHOICE' ?
+                      this.renderOptions(question.options) : ""
+                  }
+                </div>
+                {editQuestion}
+              </pre>
               <div className="actionbtn">{actionBtns}</div>
             </div>
           )}

@@ -176,9 +176,12 @@ class EditQuestion extends Component {
               onClick={this.setCorrectAnswer}
               defaultChecked={k === this.state.correctAnswerId ? true : false}
             />
-            <input
-              type="text"
-              style={{ padding: "5px 10px" }}
+            <textarea
+              cols="50"
+              style={{
+                padding: '5px 10px',
+                whiteSpace: 'pre-wrap'
+              }}
               name={k}
               onChange={this.handleOptionChange}
               defaultValue={this.state.options[k]}
@@ -216,8 +219,11 @@ class EditQuestion extends Component {
         <br />
         <br />
         <textarea
-          rows="5"
-          cols="50"
+          style={{
+            whiteSpace: 'pre-wrap'
+          }}
+          rows="10"
+          cols="100"
           name="body"
           defaultValue={this.props.question.body}
           onChange={this.handleChange}

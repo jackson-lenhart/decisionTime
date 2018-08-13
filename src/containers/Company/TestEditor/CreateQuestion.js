@@ -135,9 +135,11 @@ class CreateQuestion extends Component {
               onClick={this.setCorrectAnswer}
               defaultChecked={k === this.state.correctAnswerId ? true : false}
             />{" "}
-            <input
-              type="text"
-              style={{ padding: "5px 10px" }}
+            <textarea
+              style={{
+                padding: "5px 10px",
+                whiteSpace: 'pre-wrap'
+              }}
               name={k}
               placeholder="Place option here"
               onChange={this.handleOptionChange}
@@ -180,6 +182,9 @@ class CreateQuestion extends Component {
           name="body"
           onChange={this.handleChange}
           placeholder="Question body"
+          style={{
+            whiteSpace: 'pre-wrap'
+          }}
         />
         {options}
         {addOptionBtn}

@@ -17,18 +17,20 @@ router.post("/create-company", (req, res) => {
   const Companies = db.collection("companies");
   const { name } = req.body;
 
+  const id = hat();
+
   Companies.insertOne({
     name,
-    id: hat()
+    id,
   })
-    .then(success => {
+    .then(result => {
       if (result.insertedCount === 0) {
         throw new Error("Could not insert company");
       }
 
       res.json({
-        success: true,
-        id: success.id
+        id,
+        success: true
       });
     })
     .catch(err => {

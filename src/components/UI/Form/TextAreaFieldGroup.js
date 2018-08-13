@@ -7,7 +7,8 @@ const TextAreaFieldGroup = ({
   error,
   info,
   onChange,
-  defaultValue
+  defaultValue,
+  style
 }) => {
   return (
     <div className="form-group">
@@ -15,6 +16,7 @@ const TextAreaFieldGroup = ({
         className="form-control form-control-lg"
         placeholder={placeholder}
         name={name}
+        style={style}
         value={value}
         onChange={onChange}
         defaultValue={defaultValue}
