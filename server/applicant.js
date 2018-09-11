@@ -6,7 +6,11 @@ const hat = require("hat");
 const { omit } = require("ramda");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-require("dotenv").config();
+
+if (process.env.NODE_ENV !== 'production') {
+  require("dotenv").config();
+}
+
 
 const secret = process.env.SECRET;
 
@@ -58,6 +62,7 @@ router.post("/application", (req, res) => {
     email,
     workExperience,
     education,
+    resumeUploaded,
     coverLetter,
     salaryRequirements,
     over18,
@@ -92,6 +97,7 @@ router.post("/application", (req, res) => {
         email,
         workExperience,
         education,
+        resumeUploaded,
         coverLetter,
         salaryRequirements,
         over18,
@@ -141,6 +147,12 @@ router.post("/application", (req, res) => {
         <p>You will be prompted to begin the test:</p>
         <a href=${url}>Click here</a>
       </div>`
+  })
+  .then(() => {
+    console.log('Email sent!!');
+  })
+  .catch(err => {
+    console.error(err);
   });
 });
 

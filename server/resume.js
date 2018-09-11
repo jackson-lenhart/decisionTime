@@ -3,6 +3,7 @@
 const path = require("path");
 const { Router } = require("express");
 const bodyParser = require("body-parser");
+require('dotenv').config();
 
 const { jwt } = require("./promisified-utils");
 
@@ -15,9 +16,10 @@ const pdfParser = bodyParser.raw({
   limit: "50mb"
 });
 
-router.post("/:companyId/:applicantId/:jobId", pdfParser, (req, res) => {
+router.post('/:companyId/:applicantId/:jobId', pdfParser, (req, res) => {
   const db = req.app.locals.db;
-  const Resumes = db.collection("resumes");
+  const Resumes = db.collection('resumes');
+  const Applicants = db.collection('applicants');
   const { companyId, applicantId, jobId } = req.params;
 
   Resumes.insertOne({

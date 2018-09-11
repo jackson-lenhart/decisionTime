@@ -36,7 +36,8 @@ class ApplicationDetails extends Component {
       const {
         companyId,
         applicantId,
-        jobId
+        jobId,
+        toggleResumeUploaded
       } = this.props;
 
       fetch(
@@ -55,11 +56,12 @@ class ApplicationDetails extends Component {
           isLoading: false,
           success: true,
           successMsg: "Uploaded resume!"
-        })
+        });
+        toggleResumeUploaded();
       })
       .catch(err => {
         console.error(err);
-      })
+      });
     });
   };
 

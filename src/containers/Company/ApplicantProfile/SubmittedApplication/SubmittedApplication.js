@@ -6,16 +6,17 @@ const SubmittedApplication = props => {
 
   let host = window.location.hostname;
   if (host.includes("localhost")) {
-    host = "http://localhost:4567";
+    host = "localhost:4567";
   }
 
   const resumeUrl =
+    'http://' +
     host +
-    "/api/resume/" +
+    '/api/resume/' +
     applicant.companyId +
-    "/" +
+    '/' +
     applicant.jobId +
-    "/" +
+    '/' +
     applicant.id;
 
   let isOver18 = applicant.hasOwnProperty("over18")
@@ -166,16 +167,22 @@ const SubmittedApplication = props => {
           <h3 className="text-center" style={{ color: "purple" }}>
             Applicant Details
           </h3>
-          <a
-            href={resumeUrl}
-            target="_blank"
-            style={{
-              cursor: "pointer",
-              paddingBottom: "20px"
-            }}
-          >
-            <i className="fas fa-file">View Resume</i>
-          </a>
+          {
+            applicant.resumeUploaded ? (
+              <div style={{ paddingBottom: '20px' }}>
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  style={{
+                    cursor: "pointer"
+                  }}
+                >
+                  <i className="fas fa-file">View Resume</i>
+                </a>
+              </div>
+            ) : ''
+          }
+
           <p>
             <strong>Cover Letter:</strong> {applicant.coverLetter || "None"}
           </p>

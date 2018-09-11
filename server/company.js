@@ -1,23 +1,26 @@
-"use strict";
+'use strict';
 
-const express = require("express");
-const shortid = require("shortid");
-const hat = require("hat");
-const { omit } = require("ramda");
-const sgMail = require("@sendgrid/mail");
-require("dotenv").config();
+const express = require('express');
+const shortid = require('shortid');
+const hat = require('hat');
+const { omit } = require('ramda');
+const sgMail = require('@sendgrid/mail');
 
-const { hashPassword, comparePasswords, jwt } = require("./promisified-utils");
-const sample = require("./sample-test");
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
+const { hashPassword, comparePasswords, jwt } = require('./promisified-utils');
+const sample = require('./sample-test');
 
 const secret = process.env.SECRET;
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const router = express.Router();
 
-router.post("/new-company-form", (req, res) => {
+router.post('/new-company-form', (req, res) => {
   const db = req.app.locals.db;
-  const newCompany = db.collection("newCompany");
+  const newCompany = db.collection('newCompany');
   const { name, companyName, email, website, phone, positions } = req.body;
 
   newCompany
@@ -31,7 +34,7 @@ router.post("/new-company-form", (req, res) => {
     })
     .then(result => {
       if (result.insertedCount === 0) {
-        throw new Error("Could not insert new company submission");
+        throw new Error('Could not insert new company submission');
       }
 
       res.json({ success: true });
@@ -44,9 +47,9 @@ router.post("/new-company-form", (req, res) => {
     });
 });
 
-router.post("/create-company", (req, res) => {
+router.post('/create-company', (req, res) => {
   const db = req.app.locals.db;
-  const Companies = db.collection("companies");
+  const Companies = db.collection('companies');
   const { name } = req.body;
 
   const id = hat();
@@ -57,7 +60,7 @@ router.post("/create-company", (req, res) => {
   })
     .then(result => {
       if (result.insertedCount === 0) {
-        throw new Error("Could not insert company");
+        throw new Error('Could not insert company');
       }
 
       res.json({
@@ -74,10 +77,10 @@ router.post("/create-company", (req, res) => {
     });
 });
 
-router.post("/signup", (req, res) => {
+router.post('/signup', (req, res) => {
   const db = req.app.locals.db;
-  const CompanyUsers = db.collection("companyUsers");
-  const Companies = db.collection("companies");
+  const CompanyUsers = db.collection('companyUsers');
+  const Companies = db.collection('companies');
   const { firstName, lastName, email, companyId, password } = req.body;
 
   let companyName;
@@ -105,7 +108,7 @@ router.post("/signup", (req, res) => {
     )
     .then(result => {
       if (result.insertedCount === 0) {
-        throw new Error("Server error: could not insert user");
+        throw new Error('Server error: could not insert user');
       }
 
       return jwt.sign(
@@ -132,9 +135,9 @@ router.post("/signup", (req, res) => {
     });
 });
 
-router.post("/login", (req, res) => {
+router.post('/login', (req, res) => {
   const db = req.app.locals.db;
-  const CompanyUsers = db.collection("companyUsers");
+  const CompanyUsers = db.collection('companyUsers');
   const { email, password } = req.body;
 
   let companyName, companyId;
@@ -153,7 +156,7 @@ router.post("/login", (req, res) => {
     })
     .then(success => {
       if (!success) {
-        throw new Error("Password does not match records");
+        throw new Error('Password does not match records');
       }
 
       return jwt.sign(
@@ -181,9 +184,9 @@ router.post("/login", (req, res) => {
     });
 });
 
-router.get("/auth", (req, res) => {
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
+router.get('/auth', (req, res) => {
+  const bearer = req.headers['authorization'];
+  const token = bearer.split(' ')[1];
 
   jwt
     .verify(token, secret)
@@ -201,12 +204,12 @@ router.get("/auth", (req, res) => {
     });
 });
 
-router.get("/applicants", (req, res) => {
+router.get('/applicants', (req, res) => {
   const db = req.app.locals.db;
-  const Applicants = db.collection("applicants");
+  const Applicants = db.collection('applicants');
 
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
+  const bearer = req.headers['authorization'];
+  const token = bearer.split(' ')[1];
 
   let companyName, companyId;
   jwt
@@ -235,13 +238,13 @@ router.get("/applicants", (req, res) => {
     });
 });
 
-router.get("/applicant/:id", (req, res) => {
+router.get('/applicant/:id', (req, res) => {
   const db = req.app.locals.db;
-  const Applicants = db.collection("applicants");
-  const Jobs = db.collection("jobs");
+  const Applicants = db.collection('applicants');
+  const Jobs = db.collection('jobs');
 
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
+  const bearer = req.headers['authorization'];
+  const token = bearer.split(' ')[1];
 
   const { id } = req.params;
 
@@ -267,48 +270,15 @@ router.get("/applicant/:id", (req, res) => {
     });
 });
 
-router.get("/resume/:applicantId", (req, res) => {
+router.post('/create-applicant', (req, res) => {
   const db = req.app.locals.db;
-  const Resumes = db.collection("resumes");
-  const { applicantId } = req.params;
-
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
-
-  jwt.verify(token, secret)
-  .then(({ companyId }) =>
-    Resumes.findOne({
-      applicantId,
-      companyId
-    })
-  )
-  .then(resume => {
-    if (!resume) {
-      throw new Error(
-        `Could not find resume with applicantId ${applicantId} and companyId ${companyId}`
-      );
-    }
-
-    console.log(resume);
-
-    res.set("Content-Type", "application/pdf");
-    res.send(new Buffer(resume.resume.buffer));
-  })
-  .catch(err => {
-    res.send(err.message);
-    console.error(err);
-  })
-})
-
-router.post("/create-applicant", (req, res) => {
-  const db = req.app.locals.db;
-  const Jobs = db.collection("jobs");
-  const Applicants = db.collection("applicants");
+  const Jobs = db.collection('jobs');
+  const Applicants = db.collection('applicants');
 
   const { firstName, lastName, email, id, jobId, jobTitle } = req.body;
 
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
+  const bearer = req.headers['authorization'];
+  const token = bearer.split(' ')[1];
 
   let companyId, companyName;
   jwt
@@ -340,6 +310,7 @@ router.post("/create-applicant", (req, res) => {
         companyId,
         companyName,
         id,
+        resumeUploaded: false,
         test: job.test,
         completed: false,
         timestamp: new Date(),
@@ -350,7 +321,7 @@ router.post("/create-applicant", (req, res) => {
     })
     .then(result => {
       if (result.insertedCount === 0) {
-        throw new Error("Could not create applicant");
+        throw new Error('Could not create applicant');
       }
 
       res.json({ success: true });
@@ -364,13 +335,13 @@ router.post("/create-applicant", (req, res) => {
     });
 });
 
-router.post("/edit-applicant", (req, res) => {
+router.post('/edit-applicant', (req, res) => {
   const db = req.app.locals.db;
-  const Applicants = db.collection("applicants");
+  const Applicants = db.collection('applicants');
   const { id, firstName, lastName } = req.body;
 
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
+  const bearer = req.headers['authorization'];
+  const token = bearer.split(' ')[1];
 
   jwt
     .verify(token, secret)
@@ -387,7 +358,7 @@ router.post("/edit-applicant", (req, res) => {
     )
     .then(result => {
       if (result.matchedCount === 0 || result.modifiedCount === 0) {
-        throw new Error("Could not update applicant");
+        throw new Error('Could not update applicant');
       }
 
       res.json({ success: true });
@@ -400,13 +371,13 @@ router.post("/edit-applicant", (req, res) => {
     });
 });
 
-router.post("/remove-applicant", (req, res) => {
+router.post('/remove-applicant', (req, res) => {
   const db = req.app.locals.db;
-  const Applicants = db.collection("applicants");
+  const Applicants = db.collection('applicants');
   const { email, id } = req.body;
 
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
+  const bearer = req.headers['authorization'];
+  const token = bearer.split(' ')[1];
 
   jwt
     .verify(token, secret)
@@ -426,13 +397,13 @@ router.post("/remove-applicant", (req, res) => {
     });
 });
 
-router.post("/email-reminder", (req, res) => {
+router.post('/email-reminder', (req, res) => {
   const db = req.app.locals.db;
-  const Applicants = db.collection("applicants");
+  const Applicants = db.collection('applicants');
   const { applicantId } = req.body;
 
-  const bearer = req.headers["authorization"];
-  const token = bearer.split(" ")[1];
+  const bearer = req.headers['authorization'];
+  const token = bearer.split(' ')[1];
 
   jwt
     .verify(token, secret)
@@ -449,15 +420,15 @@ router.post("/email-reminder", (req, res) => {
         );
       }
 
-      const url = "http://decisiontyme.com/applicant/" +
-        encodeURIComponent(applicant.companyName) + "/" +
-        encodeURIComponent(applicant.jobTitle) + "/" +
+      const url = 'http://www.decisiontyme.com/applicant/' +
+        encodeURIComponent(applicant.companyName) + '/' +
+        encodeURIComponent(applicant.jobTitle) + '/' +
         applicantId;
 
       return sgMail.send({
         to: applicant.email,
-        from: "itsdecisiontyme@gmail.com",
-        subject: "Reminder: your test has not been completed",
+        from: 'itsdecisiontyme@gmail.com',
+        subject: 'Reminder: your test has not been completed',
         html: `<div>
             <p>You will be prompted to begin the test:</p>
             <a href=${url}>Click here</a>

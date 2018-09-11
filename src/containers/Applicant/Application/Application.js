@@ -36,8 +36,10 @@ class Application extends Component {
       over18: false,
       legal: false,
       felon: false,
-      file: {}
+      resumeUploaded: false
     };
+
+    this.toggleResumeUploaded = this.toggleResumeUploaded.bind(this);
 
     this.companyName = decodeURIComponent(props.match.params.companyName);
     this.jobTitle = decodeURIComponent(props.match.params.jobTitle);
@@ -155,6 +157,12 @@ class Application extends Component {
       workExperience: prevState.workExperience.filter(x => x.id !== id)
     }));
 
+  toggleResumeUploaded() {
+    this.setState(prevState => ({
+      resumeUploaded: !prevState.resumeUploaded
+    }));
+  }
+
   render() {
     if (this.state.isLoading) {
       return <Spinner />;
@@ -204,6 +212,7 @@ class Application extends Component {
             companyId={this.companyId}
             jobId={this.jobId}
             handleChange={this.handleChange}
+            toggleResumeUploaded={this.toggleResumeUploaded}
           />
           <div className="personalinfo">
             <div className="bottomform">

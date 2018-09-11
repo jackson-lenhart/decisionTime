@@ -11,6 +11,10 @@ const job = require("./job");
 const applicant = require("./applicant");
 const resume = require("./resume");
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const mongoUrl = process.env.MONGO_URL;
 
 const app = express();
@@ -20,7 +24,11 @@ MongoClient.connect(
   { useNewUrlParser: true }
 )
   .then(db => {
-    app.locals.db = db.db("test");
+    if (process.env.NODE_ENV === 'production') {
+      app.locals.db = db.db('prod');
+    } else {
+      app.locals.db = db.db('test');
+    }
   })
   .catch(err => console.error(err));
 

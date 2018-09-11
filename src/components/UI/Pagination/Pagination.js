@@ -1,6 +1,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+function arrayEquals(arr1, arr2) {
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const propTypes = {
   items: PropTypes.array.isRequired,
   onChangePage: PropTypes.func.isRequired,
@@ -10,15 +19,6 @@ const propTypes = {
 const defaultProps = {
   initialPage: 1
 };
-
-function arrayEquals(arr1, arr2) {
-  for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i] !== arr2[i]) {
-      return false;
-    }
-  }
-  return true;
-}
 
 class Pagination extends Component {
   constructor(props) {
