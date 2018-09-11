@@ -29,3 +29,13 @@
   padding: 20px;
   font-size: 20px;
 }
+
+@media (max-width: 600px) {
+  .complogo {
+    font-size: 15px;
+  }
+
+  .landingheader {
+    font-size: 50px;
+  }
+}

@@ -4,7 +4,7 @@ import "./SubmittedApplication.css";
 const SubmittedApplication = props => {
   let { applicant } = props;
 
-  let host = window.location.hostname;
+  let host = "http://" + window.location.hostname;
   if (host.includes("localhost")) {
     host = "localhost:4567";
   }

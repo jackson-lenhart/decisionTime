@@ -17,10 +17,12 @@ const TestIntro = props => {
     <div className="intro">
       <div style={style.inner}>
         <p>
-          Hey {props.applicant.firstName}! Thanks for applying through Decision Tyme!
-          The following exam has been custom designed by {props.companyName} for the position titled: {props.jobTitle}.
-          Once clicking "START TEST NOW" you will be on the clock to
-          see how long it takes you to respond to all of the questions. Good luck!!
+          Hey {props.applicant.firstName}! Thanks for showing interest in
+          working at {props.companyName}. We have put together a timed test for
+          the position titled: {props.jobTitle}. Once clicking "START TEST NOW"
+          the timer will begin. Please make sure you give yourself enough time
+          to take the test. After the test begins, there is no way to pause the
+          timer until you click complete. Good luck!!
         </p>
         <p style={{ color: "purple", textAlign: "center" }}>
           <strong>Best of luck!</strong>

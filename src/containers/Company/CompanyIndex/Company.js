@@ -34,42 +34,36 @@ class Company extends Component {
     };
 
     Promise.all([
-      fetch("/api/company/applicants", options)
-        .then(res => res.json()),
-      fetch("/api/job/jobs", options)
-        .then(res => res.json())
+      fetch("/api/company/applicants", options).then(res => res.json()),
+      fetch("/api/job/jobs", options).then(res => res.json())
     ])
-    .then(data => {
-      console.log(data);
-      if (data.includes(responseObj =>
-        responseObj.success === false
-      )) {
-        return this.setState({
-          isLoading: false,
-          isError: true
-        });
-      } else {
-        const companyName = data[0].companyName;
-        const [{ applicants }, { jobs }] = data;
+      .then(data => {
+        console.log(data);
+        if (data.includes(responseObj => responseObj.success === false)) {
+          return this.setState({
+            isLoading: false,
+            isError: true
+          });
+        } else {
+          const companyName = data[0].companyName;
+          const [{ applicants }, { jobs }] = data;
+          this.setState({
+            companyName,
+            applicants,
+            jobs,
+            isLoading: false,
+            totalJobViews: jobs.reduce((acc, x) => acc + x.visits, 0)
+          });
+        }
+      })
+      .catch(err => {
+        console.error(err);
         this.setState({
-          companyName,
-          applicants,
-          jobs,
           isLoading: false,
-          totalJobViews: jobs.reduce((acc, x) =>
-            acc + x.visits
-          , 0)
-        })
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      this.setState({
-        isLoading: false,
-        isError: true,
-        msg: err.message
+          isError: true,
+          msg: err.message
+        });
       });
-    });
   }
 
   generateTokenHandler = () => {
@@ -170,12 +164,27 @@ class Company extends Component {
     return (
       <div className="Company">
         <div>
-          <div className="CompanyName">
-            <h1>{this.state.companyName}</h1>
-            <p>Your positions have been viewed a total of {this.state.totalJobViews} times</p>
+          <div className="row">
+            {/* <div className="CompanyName"> */}
+            <div className="col-md-6">
+              <h1>
+                <strong>{this.state.companyName}</strong>
+              </h1>
+              {createApplicant}
+              {createApplicantBtn}
+            </div>
+            {/* </div> */}
+            <div
+              className="col-md-6"
+              style={{ float: "right", textAlign: "center" }}
+            >
+              <strong style={{ fontSize: "100px" }}>
+                {this.state.totalJobViews}
+              </strong>
+              <br />
+              <strong>Total Job Views and Counting</strong>
+            </div>
           </div>
-          {createApplicant}
-          {createApplicantBtn}
           <div className="applicantList">
             <strong>Search Applicant by Last Name</strong>
             <br />
