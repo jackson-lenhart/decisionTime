@@ -21,7 +21,8 @@ class CompanyLogin extends Component {
       [e.target.name]: e.target.value
     });
 
-  handleSubmit = () => {
+  handleSubmit = e => {
+    e.preventDefault();
     const options = {
       headers: {
         "Content-Type": "application/json"
@@ -40,9 +41,9 @@ class CompanyLogin extends Component {
       () => {
         fetch("/api/company/login", options)
           .then(res => {
-            if (res.status === 403) {
+            if (res.status === 401) {
               this.setState({ denied: true });
-              return Promise.reject(new Error("403 access denied"));
+              return Promise.reject(new Error('401 unauthorized'));
             } else {
               return res.json();
             }
@@ -106,7 +107,7 @@ class CompanyLogin extends Component {
             </div>
             <div style={{ padding: "10px" }}>
               <input
-                autofocus
+                autoFocus="true"
                 type="password"
                 className="LoginInput"
                 placeholder="password..."

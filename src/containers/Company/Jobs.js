@@ -27,6 +27,7 @@ class Jobs extends Component {
       deleteJobModal: false,
       viewDescription: false
     };
+
     this.viewDescriptionHandler = this.viewDescriptionHandler.bind(this);
     this.token = localStorage.getItem("token");
   }

@@ -1,9 +1,7 @@
-"use strict";
+import bcrypt from 'bcrypt';
+import _jwt from 'jsonwebtoken';
 
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-function hashPassword(password) {
+export function hashPassword(password) {
   return new Promise((resolve, reject) => {
     bcrypt.genSalt(10, (err, salt) => {
       if (err) reject(err);
@@ -16,13 +14,13 @@ function hashPassword(password) {
   });
 }
 
-function comparePasswords(password, hash) {
+export function comparePasswords(password, hash) {
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, hash, (err, success) => {
       if (err) reject(`Error comparing passwords: ${err}`);
 
       if (!success) {
-        reject("Password does not match our records");
+        resolve(false);
       }
 
       resolve(success);
@@ -30,10 +28,10 @@ function comparePasswords(password, hash) {
   });
 }
 
-const jwtPromised = {
+export const jwt = {
   sign: (payload, secret, options = {}) => {
     return new Promise((resolve, reject) => {
-      jwt.sign(payload, secret, options, (err, token) => {
+      _jwt.sign(payload, secret, options, (err, token) => {
         if (err) reject(err);
 
         resolve(token);
@@ -42,17 +40,11 @@ const jwtPromised = {
   },
   verify: (token, secret, options = {}) => {
     return new Promise((resolve, reject) => {
-      jwt.verify(token, secret, options, (err, authData) => {
+      _jwt.verify(token, secret, options, (err, authData) => {
         if (err) reject(err);
 
         resolve(authData);
       });
     });
   }
-};
-
-module.exports = {
-  hashPassword,
-  comparePasswords,
-  jwt: jwtPromised
 };
