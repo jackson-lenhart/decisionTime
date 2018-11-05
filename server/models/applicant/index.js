@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import timestamps from 'mongoose-timestamp';
 
 // child schema
-import experienceSchema from './schemas/experience';
-import educationSchema from './schemas/education';
+import experienceSchema from './sub-schemas/experience';
+import educationSchema from './sub-schemas/education';
 
 const applicantSchema = mongoose.Schema({
   companyId: {

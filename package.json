@@ -37,7 +37,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "serve": "nodemon --ignore src server/index.js --exec babel-node",
-    "server-test": "mocha --compilers js:babel-register ./server/tests"
+    "server-test": "mocha ./server/tests"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",

@@ -39,7 +39,7 @@ class CompanyLogin extends Component {
         isLoading: true
       },
       () => {
-        fetch("/api/company/login", options)
+        fetch("/api/company/user/login", options)
           .then(res => {
             if (res.status === 401) {
               this.setState({ denied: true });
