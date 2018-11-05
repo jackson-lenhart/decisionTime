@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import 'dotenv/config';
 
+import Company from '../../../models/company';
 import CompanyUser from '../../../models/company/user';
 
 import { hashPassword, comparePasswords, jwt } from '../../../utils';

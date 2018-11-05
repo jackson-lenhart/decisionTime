@@ -36,7 +36,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "serve": "nodemon --ignore src server/index.js --exec babel-node",
+    "serve": "nodemon --ignore src --ignore server/tests server/index.js --exec babel-node",
     "server-test": "mocha ./server/tests"
   },
   "devDependencies": {
