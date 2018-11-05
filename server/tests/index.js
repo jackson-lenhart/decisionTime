@@ -19,7 +19,6 @@ describe('Company Users', function() {
       fetch('http://localhost:4567/api/company/user/login', options)
       .then(res => res.json())
       .then(data => {
-        expect(data).to.be.an('object');
         expect(data).to.have.property('companyId');
         expect(data).to.have.property('token');
         done();
