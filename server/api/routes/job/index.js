@@ -26,16 +26,16 @@ router.get('/', async function(req, res) {
 router.post('/', async function(req, res) {
   const token = req.headers['authorization'].split(' ')[1];
   const { title, description } = req.body;
-
   try {
     const { companyId, companyName } = await jwt.verify(token, secret);
-    await Job.insertOne({
+    const job = new Job({
       companyId,
       companyName,
       title,
       description,
       visits: 0
     });
+    await job.save();
     res.sendStatus(200);
   }
   catch (err) {

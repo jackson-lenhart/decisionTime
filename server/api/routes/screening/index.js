@@ -13,13 +13,8 @@ const router = Router();
 router.post('/', async function(req, res) {
   const token = req.headers['authorization'].split(' ')[1];
   const { jobId, questions } = req.body;
-
   try {
-
-    // get company id from jwt authData
     const { companyId } = await jwt.verify(token, secret);
-
-    // save exam in the database
     const screening = new Screening({
       companyId,
       jobId,
@@ -33,6 +28,25 @@ router.post('/', async function(req, res) {
   catch (err) {
     console.error(err);
     res.sendStatus(500);
+  }
+});
+
+// updates existing screening exam
+router.post('/edit', async function(req, res) {
+  const token = req.headers['authorization'].split(' ')[1];
+  const { screeningId, questions } = req.body;
+  try {
+    const { companyId } = await jwt.verify(token, secret);
+    await Screening.updateOne(
+      { companyId, _id: screeningId },
+      {
+        $set: { questions }
+      }
+    );
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
   }
 });
 
