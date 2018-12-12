@@ -65,6 +65,43 @@ router.post('/login', async function(req, res) {
       if (!validPassword) {
         res.sendStatus(401);
       } else {
+        // TODO: make this (and probably all other tokens) expire after some period of time
+        const token = await jwt.sign({
+          email,
+          companyName,
+          companyId
+        }, secret);
+        res.json({
+          token,
+          companyId
+        });
+      }
+    }
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
+router.post('/password-reset', async function(req, res) {
+  const { email, password, newPassword } = req.body;
+  try {
+    const user = await CompanyUser.findOne({ email });
+    if (!user) {
+      res.sendStatus(401);
+    } else {
+      const { _id, passwordDigest, email, companyName, companyId } = user;
+      const validPassword = comparePasswords(password, passwordDigest);
+      if (!validPassword) {
+        res.sendStatus(401);
+      } else {
+        const newPasswordDigest = await hashPassword(newPassword);
+        await CompanyUser.updateOne(
+          { _id },
+          {
+            $set: { passwordDigest: newPasswordDigest }
+          }
+        );
         const token = await jwt.sign({
           email,
           companyName,

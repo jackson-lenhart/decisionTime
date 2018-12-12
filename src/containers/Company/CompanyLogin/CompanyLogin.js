@@ -42,7 +42,10 @@ class CompanyLogin extends Component {
         fetch("/api/company/user/login", options)
           .then(res => {
             if (res.status === 401) {
-              this.setState({ denied: true });
+              this.setState({
+                isLoading: false,
+                denied: true
+              });
               return Promise.reject(new Error('401 unauthorized'));
             } else {
               return res.json();

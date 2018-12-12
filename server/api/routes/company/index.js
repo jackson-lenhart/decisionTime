@@ -36,7 +36,9 @@ router.get('/gentoken/:prevtoken', async function(req, res) {
     const accessToken = randtoken.generate(16);
     await Company.updateOne(
       { accessToken: prevtoken },
-      { accessToken }
+      {
+        $set: { accessToken }
+      }
     );
     res.json({ accessToken });
   } catch(err) {

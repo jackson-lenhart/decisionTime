@@ -48,6 +48,7 @@ describe('Company Users', function() {
         done(err);
       });
     });
+
   });
 
   describe('Signup', function() {
@@ -106,5 +107,58 @@ describe('Company Users', function() {
         done(err);
       });
     });
+
+  });
+
+  describe('Password Reset', function() {
+
+    it('Resets password of user without error', function(done) {
+      const options = {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'harry@lol.com',
+          password: 'hunter12',
+          newPassword: 'hunter13'
+        })
+      };
+
+      fetch('http://localhost:4567/api/company/user/password-reset', options)
+      .then(res => res.json())
+      .then(data => {
+        expect(data).to.have.property('token');
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+    });
+
+    it('Logs in successfully with new password', function(done) {
+      const options = {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'harry@lol.com',
+          password: 'hunter13'
+        })
+      };
+
+      fetch('http://localhost:4567/api/company/user/login', options)
+      .then(res => res.json())
+      .then(data => {
+        expect(data).to.have.property('companyId');
+        expect(data).to.have.property('token');
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+    });
+
   });
 });
