@@ -72,10 +72,7 @@ router.post('/remove', async function(req, res) {
   const { id } = req.body;
   try {
     const { companyId } = await jwt.verify(token, secret);
-    await Job.findOneAndDelete({
-      companyId,
-      _id: id
-    });
+    await Job.findOneAndDelete({ _id: id });
     res.sendStatus(200);
   } catch (err) {
     res.sendStatus(500);

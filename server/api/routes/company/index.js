@@ -8,6 +8,8 @@ import CompanyUser from '../../../models/company/user';
 import applicants from './applicants';
 import user from './user';
 
+import { jwt } from '../../../utils';
+
 const secret = process.env.SECRET;
 
 const router = Router();
@@ -42,6 +44,20 @@ router.get('/gentoken/:prevtoken', async function(req, res) {
     );
     res.json({ accessToken });
   } catch(err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
+// company deletion. Eventually this will be admin-only
+router.get('/remove', async function(req, res) {
+  const token = req.headers['authorization'].split(' ')[1];
+
+  try {
+    const { companyId } = await jwt.verify(token, secret);
+    await Company.findOneAndDelete({ _id: companyId });
+    res.sendStatus(200);
+  } catch (err) {
     res.sendStatus(500);
     console.error(err);
   }

@@ -115,4 +115,16 @@ router.post('/password-reset', async function(req, res) {
   }
 });
 
+router.get('/remove', async function(req, res) {
+  const token = req.headers['authorization'].split(' ')[1];
+  try {
+    const { email, companyId } = await jwt.verify(token, secret);
+    await CompanyUser.deleteOne({ email, companyId });
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
 export default router;

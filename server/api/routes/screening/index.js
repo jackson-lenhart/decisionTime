@@ -9,6 +9,20 @@ const secret = process.env.SECRET;
 
 const router = Router();
 
+// gets screening exam(s) with a jobId
+router.get('/:jobId', async function(req, res) {
+  const token = req.headers['authorization'].split(' ')[1];
+  const { jobId } = req.params;
+  try {
+    const { companyId } = await jwt.verify(token, secret);
+    const exams = await Screening.find({ jobId, companyId });
+    res.json({ exams });
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
 // creates new screening exam
 router.post('/', async function(req, res) {
   const token = req.headers['authorization'].split(' ')[1];
@@ -22,7 +36,7 @@ router.post('/', async function(req, res) {
       visits: 0
     });
     const { _id } = await screening.save();
-
+    // should we really be giving back this id? Yet to be determined
     res.json({ _id });
   }
   catch (err) {
@@ -43,6 +57,19 @@ router.post('/edit', async function(req, res) {
         $set: { questions }
       }
     );
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
+router.post('/remove', async function(req, res) {
+  const token = req.headers['authorization'].split(' ')[1];
+  const { screeningId } = req.body;
+  try {
+    const { companyId } = await jwt.verify(token, secret);
+    await Screening.findOneAndDelete({ companyId, _id: screeningId });
     res.sendStatus(200);
   } catch (err) {
     res.sendStatus(500);

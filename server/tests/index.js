@@ -195,6 +195,7 @@ describe('Company Users', function() {
 
 });
 
+let testJob = null;
 describe('Jobs', function() {
 
   describe('Create Job', function() {
@@ -223,7 +224,6 @@ describe('Jobs', function() {
 
   });
 
-  let testJob = null;
   describe('Get Jobs', function() {
 
     it('Retrieves list of jobs for test company', function(done) {
@@ -302,6 +302,159 @@ describe('Jobs', function() {
 
 });
 
-// TODO: screening tests
+// TODO: company-side applicant testing
 
-// TODO: auto-delete all test-generated data from database
+let testScreeningId = null;
+describe('Screening', function() {
+
+  it('Saves new exam with corresponding jobId and companyId', function(done) {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${testToken}`,
+        'content-type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        jobId: testJob._id,
+        questions: [
+          {
+            questionType: 'OPEN_RESPONSE',
+            body: 'Testing exam creation'
+          }
+        ]
+      })
+    };
+    fetch(host + '/screening/', options)
+    .then(res => res.json())
+    .then(data => {
+      expect(data).to.have.property('_id');
+      testScreeningId = data._id;
+      done();
+    })
+    .catch(err => {
+      done(err);
+    });
+  });
+
+  it('Edits an existing exam', function(done) {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${testToken}`,
+        'content-type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        screeningId: testScreeningId,
+        questions: [
+          {
+            questionType: 'MULTIPLE_CHOICE',
+            body: 'Testing exam modify',
+            options: [{ body: 'Test option' }]
+          }
+        ]
+      })
+    };
+    fetch(host + '/screening/edit', options)
+    .then(res => {
+      expect(res.status).to.equal(200);
+      done();
+    })
+    .catch(err => {
+      done(err);
+    });
+  });
+
+  it('Fetches the newly edited exam', function(done) {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${testToken}`
+      }
+    };
+    fetch(host + '/screening/' + testJob._id, options)
+    .then(res => res.json())
+    .then(data => {
+      expect(data.exams.length).to.equal(1);
+      const question = data.exams[0].questions[0];
+      expect(question.body).to.equal('Testing exam modify');
+      done();
+    })
+    .catch(err => {
+      done(err);
+    })
+  });
+
+});
+
+describe('Tear Down Logic', function() {
+
+  it('Removes company from database', function(done) {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${testToken}`
+      }
+    };
+    fetch(host + '/company/remove', options)
+    .then(res => {
+      expect(res.status).to.equal(200);
+      done();
+    })
+    .catch(err => {
+      done(err);
+    });
+  });
+
+  it('Removes companyUser from database', function(done) {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${testToken}`
+      }
+    };
+    fetch(host + '/company/user/remove', options)
+    .then(res => {
+      expect(res.status).to.equal(200);
+      done();
+    })
+    .catch(err => {
+      done(err);
+    });
+  });
+
+  it('Removes job from database', function(done) {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${testToken}`,
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({ id: testJob._id })
+    };
+    fetch(host + '/job/remove', options)
+    .then(res => {
+      expect(res.status).to.equal(200);
+      done();
+    })
+    .catch(err => {
+      done(err);
+    });
+  });
+
+  it('Removes screening exam from database', function(done) {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${testToken}`,
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({ screeningId: testScreeningId })
+    };
+    fetch(host + '/screening/remove', options)
+    .then(res => {
+      expect(res.status).to.equal(200);
+      done();
+    })
+    .catch(err => {
+      done(err);
+    });
+  });
+
+});
