@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import hat from "hat";
 
 import Spinner from "../../components/UI/Spinner/Spinner";
 import TextAreaFieldGroup from "../../components/UI/Form/TextAreaFieldGroup";
@@ -38,12 +37,8 @@ class CreateJob extends Component {
       });
     }
 
-    const id = hat();
-    const job = {
-      id,
-      ...this.state,
-      test: []
-    };
+    const { title, description } = this.state;
+    const job = { title, description };
 
     const options = {
       headers: {
@@ -59,27 +54,21 @@ class CreateJob extends Component {
         isLoading: true
       },
       () => {
-        fetch("/api/job/create-job", options)
-          .then(res => res.json())
-          .then(data => {
-            if (!data.success) {
-              console.log(data);
-              return this.setState({
+        fetch("/api/job/", options)
+          .then(res => {
+            if (res.status === 200) {
+              this.setState({
+                isLoading: false
+              }, () => {
+                this.props.createJobInState(job);
+                this.props.toggleCreateJob();
+              })
+            } else {
+              this.setState({
                 isError: true,
                 isLoading: false
               });
             }
-
-            console.log(data);
-            this.setState(
-              {
-                isLoading: false
-              },
-              () => {
-                this.props.createJobInState(job);
-                this.props.toggleCreateJob();
-              }
-            );
           })
           .catch(err => {
             console.error(err);

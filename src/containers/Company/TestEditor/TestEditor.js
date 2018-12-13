@@ -8,13 +8,37 @@ class TestEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: false,
+      isLoading: true,
       isError: false,
-      createQuestionMounted: false
+      createQuestionMounted: false,
+      exams: []
     };
 
     this.toggleCreateQuestion = this.toggleCreateQuestion.bind(this);
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  componentDidMount() {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`
+      }
+    };
+    fetch(`/api/screening/${this.props.job._id}`, options)
+    .then(res => res.json())
+    .then(data => {
+      this.setState({
+        exams: data.exams,
+        isLoading: false
+      });
+    })
+    .catch(err => {
+      this.setState({
+        isError: true,
+        isLoading: false
+      });
+      console.error(err);
+    });
   }
 
   toggleCreateQuestion() {
@@ -39,10 +63,11 @@ class TestEditor extends Component {
     }
 
     let questionList = "";
-    if (this.props.job.test.length > 0) {
+    if (this.state.exams.length > 0) {
+      console.log('Dat thing', this.state.exams[0]);
       questionList = (
         <QuestionList
-          test={this.props.job.test}
+          test={this.state.exams[0]}
           jobId={this.props.job.id}
           deleteQuestionInState={this.props.deleteQuestionInState}
           createQuestionInState={this.props.createQuestionInState}

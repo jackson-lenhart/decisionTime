@@ -52,7 +52,6 @@ class CompanyLogin extends Component {
             }
           })
           .then(data => {
-            console.log(data);
             localStorage.setItem("token", data.token);
             this.props.login();
           })

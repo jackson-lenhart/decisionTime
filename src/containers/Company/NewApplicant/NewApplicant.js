@@ -39,17 +39,9 @@ class NewApplicant extends Component {
           }
         };
 
-        fetch("/api/job/jobs", options)
+        fetch("/api/job/", options)
           .then(res => res.json())
           .then(data => {
-            if (!data.success) {
-              console.log(data);
-              return this.setState({
-                isLoading: false,
-                isError: true
-              });
-            }
-
             console.log(data);
             this.props.putJobsInState(data.jobs);
             this.setState({ isLoading: false });
@@ -216,7 +208,7 @@ class NewApplicant extends Component {
                 Assign Job
               </option>
               {this.props.jobs.map(x => (
-                <option key={x.id} value={[x.title, x.id].join(',')}>
+                <option key={x._id} value={[x.title, x._id].join(',')}>
                   {x.title}
                 </option>
               ))}

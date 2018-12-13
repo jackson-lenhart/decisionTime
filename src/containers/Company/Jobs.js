@@ -39,24 +39,16 @@ class Jobs extends Component {
       }
     };
 
-    fetch("/api/job/jobs", options)
+    fetch("/api/job/", options)
       .then(res => res.json())
       .then(data => {
-        console.log("Data from jobs", data);
-        if (!data.success) {
-          return this.setState({
-            isLoading: false,
-            isError: true
-          });
-        }
-
         this.setState({
           isLoading: false,
           jobs: data.jobs,
-          viewingJobId: data.jobs.length > 0 ? data.jobs[0].id : null,
+          viewingJobId: data.jobs.length > 0 ? data.jobs[0]._id : null,
 
-          companyId: data.companyId,
-          companyName: data.companyName
+          // companyId: data.companyId,
+          // companyName: data.companyName
         });
       })
       .catch(err => {
@@ -188,7 +180,7 @@ class Jobs extends Component {
     if (jobs.length > 0) {
       jobList = jobs.map(x => {
         const style =
-          x.id === this.state.viewingJobId
+          x._id === this.state.viewingJobId
             ? {
                 cursor: "pointer",
                 color: "green",
@@ -201,7 +193,7 @@ class Jobs extends Component {
 
         return (
           <div
-            key={x.id}
+            key={x._id}
             className="jobs"
             style={style}
             onClick={() => this.setViewingJobId(x.id)}
@@ -262,7 +254,7 @@ class Jobs extends Component {
         <EditJob
           toggleEditJob={this.toggleEditJob}
           editJobInState={this.editJobInState}
-          job={this.state.jobs.find(x => x.id === this.state.viewingJobId)}
+          job={this.state.jobs.find(x => x._id === this.state.viewingJobId)}
           id={this.state.viewingJobId}
           token={this.token}
         />
@@ -274,7 +266,7 @@ class Jobs extends Component {
       testEditor = (
         <TestEditor
           token={this.token}
-          job={this.state.jobs.find(x => x.id === this.state.viewingJobId)}
+          job={this.state.jobs.find(x => x._id === this.state.viewingJobId)}
           createQuestionInState={this.createQuestionInState}
           editQuestionInState={this.editQuestionInState}
           deleteQuestionInState={this.deleteQuestionInState}
@@ -289,7 +281,7 @@ class Jobs extends Component {
         <DeleteJob
           id={this.state.viewingJobId}
           title={
-            this.state.jobs.find(x => x.id === this.state.viewingJobId).title
+            this.state.jobs.find(x => x._id === this.state.viewingJobId).title
           }
           token={this.token}
           toggleDeleteJob={this.toggleDeleteJob}
@@ -318,7 +310,7 @@ class Jobs extends Component {
       !this.state.createJobMounted &&
       !this.state.testEditorMounted
     ) {
-      description = this.state.jobs.find(x => x.id === this.state.viewingJobId)
+      description = this.state.jobs.find(x => x._id === this.state.viewingJobId)
         .description;
 
       let host = window.location.hostname;
@@ -346,7 +338,7 @@ class Jobs extends Component {
 
     let visits = "";
     if (this.state.viewingJobId) {
-      let numVisitors = jobs.find(x => x.id === viewingJobId).visitors;
+      let numVisitors = jobs.find(x => x._id === viewingJobId).visitors;
 
       visits = <p>This job has had {numVisitors} visitors so far</p>;
     }
@@ -433,16 +425,12 @@ class Jobs extends Component {
                   )}
                   {this.state.viewDescription ? (
                     <pre>
-                      <p>
-                        <div
-                          style={{
-                            textAlign: "left",
-                            width: "100%",
-                            whiteSpace: "pre-wrap"
-                          }}
-                        >
-                          <em>{description}</em>
-                        </div>
+                      <p style={{
+                        textAlign: "left",
+                        width: "100%",
+                        whiteSpace: "pre-wrap"
+                      }}>
+                        <em>{description}</em>
                       </p>
                     </pre>
                   ) : null}

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import NewApplicant from "../NewApplicant/NewApplicant";
+// import NewApplicant from "../NewApplicant/NewApplicant";
 import ApplicantList from "../ApplicantList";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import "./Company.css";
@@ -35,10 +35,9 @@ class Company extends Component {
 
     Promise.all([
       fetch("/api/company/applicants", options).then(res => res.json()),
-      fetch("/api/job/jobs", options).then(res => res.json())
+      fetch("/api/job/", options).then(res => res.json())
     ])
       .then(data => {
-        console.log(data);
         if (data.includes(responseObj => responseObj.success === false)) {
           return this.setState({
             isLoading: false,
@@ -125,7 +124,7 @@ class Company extends Component {
 
     let createApplicantBtn = "";
     let createApplicant = "";
-    if (this.state.createApplicantMounted) {
+    /*if (this.state.createApplicantMounted) {
       createApplicant = (
         <NewApplicant
           token={this.token}
@@ -145,7 +144,7 @@ class Company extends Component {
           Create New Applicant
         </button>
       );
-    }
+    }*/
 
     let applicantList = "";
     if (this.state.applicants.length > 0) {
