@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import 'dotenv/config';
 
+import results from './results';
+
 import Screening from '../../../models/screening';
 
 import { jwt } from '../../../utils';
@@ -16,7 +18,7 @@ router.get('/:jobId', async function(req, res) {
   try {
     const { companyId } = await jwt.verify(token, secret);
     const exams = await Screening.find({ jobId, companyId });
-    res.json({ exams });
+    res.json(exams);
   } catch (err) {
     res.sendStatus(500);
     console.error(err);
@@ -51,13 +53,13 @@ router.post('/edit', async function(req, res) {
   const { screeningId, questions } = req.body;
   try {
     const { companyId } = await jwt.verify(token, secret);
-    await Screening.updateOne(
+    const screening = await Screening.findOneAndUpdate(
       { companyId, _id: screeningId },
       {
         $set: { questions }
       }
     );
-    res.sendStatus(200);
+    res.json(screening);
   } catch (err) {
     res.sendStatus(500);
     console.error(err);
@@ -76,5 +78,7 @@ router.post('/remove', async function(req, res) {
     console.error(err);
   }
 });
+
+router.use('/results', results);
 
 export default router;

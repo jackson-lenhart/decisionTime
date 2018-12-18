@@ -27,7 +27,7 @@ class IndividualQuestion extends Component {
 
   deleteQuestion = () => {
     const newTest = this.props.test.filter(
-      x => x.id !== this.props.question.id
+      x => x._id !== this.props.question._id
     );
 
     const options = {
@@ -37,8 +37,8 @@ class IndividualQuestion extends Component {
       },
       method: "POST",
       body: JSON.stringify({
-        id: this.props.jobId,
-        test: newTest
+        screeningId: this.props.jobId,
+        questions: newTest
       })
     };
 
@@ -47,7 +47,7 @@ class IndividualQuestion extends Component {
         isLoading: true
       },
       () => {
-        fetch("/api/job/edit-test", options)
+        fetch("/api/screening/edit", options)
           .then(res => res.json())
           .then(data => {
             if (!data.success) {
@@ -62,7 +62,7 @@ class IndividualQuestion extends Component {
               {
                 isLoading: false
               },
-              () => this.props.deleteQuestionInState(this.props.question.id)
+              () => this.props.deleteQuestionInState(this.props.question._id)
             );
           })
           .catch(err => console.error(err));
@@ -94,7 +94,7 @@ class IndividualQuestion extends Component {
         />
       );
     } else {
-      switch (this.props.question.type) {
+      switch (this.props.question.questionType) {
         case "OPEN_RESPONSE":
           question = (
             <pre

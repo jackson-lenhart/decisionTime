@@ -5,12 +5,11 @@ import IndividualQuestion from "./IndividualQuestion/IndividualQuestion";
 class QuestionList extends Component {
   renderQuestions = () => {
     let test = this.props.test;
-    console.log('Test?', test);
     const props = _.omit(this.props, "test");
-    return test.map((question, i) => (
+    return test && test.questions.map((question, i) => (
       <IndividualQuestion
         question={question}
-        key={question.id}
+        key={question._id}
         index={i}
         token={props.token}
         jobId={props.jobId}

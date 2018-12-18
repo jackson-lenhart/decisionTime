@@ -40,7 +40,7 @@ class ApplicantList extends Component {
               applicant={applicant}
               deleteApplicant={props.deleteApplicant}
               editApplicant={props.editApplicant}
-              key={applicant.id}
+              key={applicant._id}
               {...props}
             />
           ))}

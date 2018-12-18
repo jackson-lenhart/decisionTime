@@ -14,12 +14,12 @@ class Applicant extends Component {
       isError: false,
       applicant: {},
       secondsElapsed: 0,
-      test: {},
+      exam: [],
       buttonClicked: false
     };
 
     this.companyName = props.match.params.companyName;
-    this.jobTitle = props.match.params.jobTitle;
+    this.jobId = props.match.params.jobId;
     this.id = props.match.params.id;
   }
 
@@ -29,42 +29,34 @@ class Applicant extends Component {
       return;
     }
 
-    fetch(`/api/applicant/auth/${this.id}`)
+    fetch(`/api/applicant/${this.id}`)
       .then(res => {
         return res.status === 403 ? Promise.reject("Auth denied") : res.json();
       })
-      .then(data => {
-        console.log(data);
-        if (!data.success) {
-          return this.setState({
-            isError: true
-          });
-        }
-
-        if (data.completed) {
+      .then(applicant => {
+        if (applicant.status === 'COMPLETE') {
           this.setState({
             isLoading: false,
             isAuth: true,
             isCompleted: true
           });
-        } else if (data.testTimestamp) {
-          const parsedDate = Date.parse(data.testTimestamp);
+        } else if (applicant.status === 'BEGUN_EXAM') {
           this.setState(
             {
+              applicant,
               isLoading: false,
-              secondsElapsed: Math.floor((new Date() - parsedDate) / 1000),
+              secondsElapsed: Math.floor((Date.now() - applicant.testTimestamp) / 1000),
               isAuth: true,
-              applicant: data,
-              test: data.test
+              test: applicant.exam
             },
             this.changePageHandler
           );
         } else {
           this.setState({
+            applicant,
             isLoading: false,
             isAuth: true,
-            applicant: data,
-            test: data.test
+            test: applicant.exam
           });
         }
       })
@@ -78,11 +70,10 @@ class Applicant extends Component {
     }
 
     fetch(`/api/applicant/test-timestamp/${this.id}`)
-      .then(
-        res => (res.status === 403 ? Promise.reject("Auth denied") : res.json())
-      )
-      .then(data => {
-        this.changePageHandler();
+      .then(res => {
+        if (res.status === 200) {
+          this.changePageHandler();
+        }
       })
       .catch(err => console.error(err));
   };
@@ -137,7 +128,7 @@ class Applicant extends Component {
     ) : (
       <Test
         id={this.id}
-        test={this.state.test}
+        test={this.state.exam}
         secondsElapsed={this.state.secondsElapsed}
         applicant={this.state.applicant}
         propagateError={this.propagateError}
@@ -145,6 +136,7 @@ class Applicant extends Component {
         redirectToFinished={this.redirectToFinished}
         companyName={this.companyName}
         jobTitle={this.jobTitle}
+        jobId={this.jobId}
       />
     );
 

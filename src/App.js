@@ -15,7 +15,7 @@ class App extends Component {
       <div className="App">
         <Route exact path="/" component={Home} />
         <Route
-          path="/applicant/:companyName/:jobTitle/:id"
+          path="/applicant/:companyName/:jobId/:id"
           component={Applicant}
         />
         <Route path="/company" component={CompanyRouter} />

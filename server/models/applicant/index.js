@@ -4,6 +4,7 @@ import timestamps from 'mongoose-timestamp';
 // child schema
 import experienceSchema from './sub-schema/experience';
 import educationSchema from './sub-schema/education';
+import questionSchema from '../screening/sub-schema/question';
 
 const applicantSchema = mongoose.Schema({
   companyId: {
@@ -34,6 +35,15 @@ const applicantSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  status: {
+    type: String,
+    enum: ['INITIALIZED', 'BEGUN_EXAM', 'COMPLETE'],
+    required: true
+  },
+  exam: {
+    type: [questionSchema],
+    required: true
+  },
   address: String,
   city: String,
   state: String,
@@ -47,7 +57,8 @@ const applicantSchema = mongoose.Schema({
   isOver18: Boolean,
   isLegal: Boolean,
   isFelon: Boolean,
-  felonForm: String
+  felonForm: String,
+  testTimestamp: Number
 });
 
 applicantSchema.plugin(timestamps);

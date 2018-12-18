@@ -21,4 +21,6 @@ const jobSchema = mongoose.Schema({
   visits: Number
 });
 
+jobSchema.plugin(timestamps);
+
 export default mongoose.model('Job', jobSchema);

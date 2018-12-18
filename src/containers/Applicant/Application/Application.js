@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { omit } from "ramda";
 import Toggle from "react-toggle";
-import hat from "hat";
 
 import ApplicationDetails from "./Input/ApplicationDetails";
 import EducationProfile from "./Input/Profile/EducationProfile";
@@ -28,15 +27,16 @@ class Application extends Component {
       zipCode: "",
       phone: "",
       email: "",
-      workExperience: [],
+      experience: [],
       education: [],
       coverLetter: "",
       salaryRequirements: "",
       felonyForm: "",
-      over18: false,
-      legal: false,
-      felon: false,
-      resumeUploaded: false
+      isOver18: false,
+      isLegal: false,
+      isFelon: false,
+      resumeUploaded: false,
+      applicantId: null
     };
 
     this.toggleResumeUploaded = this.toggleResumeUploaded.bind(this);
@@ -45,7 +45,6 @@ class Application extends Component {
     this.jobTitle = decodeURIComponent(props.match.params.jobTitle);
     this.companyId = props.match.params.companyId;
     this.jobId = props.match.params.jobId;
-    this.applicantId = hat();
   }
 
   handleSubmit = () => {
@@ -69,6 +68,7 @@ class Application extends Component {
         window.scrollTo(0, 0)
       );
     }
+    console.log("This jobId", this.jobId);
 
     const options = {
       headers: {
@@ -76,12 +76,11 @@ class Application extends Component {
       },
       method: "POST",
       body: JSON.stringify({
-        applicantId: this.applicantId,
         companyId: this.companyId,
         companyName: this.companyName,
         jobId: this.jobId,
         jobTitle: this.jobTitle,
-        ...omit(["isLoading", "errorMsg", "invalidFields"], this.state)
+        ...omit(["isLoading", "errorMsg", "invalidFields", "applicantId"], this.state)
       })
     };
 
@@ -90,28 +89,22 @@ class Application extends Component {
         isLoading: true
       },
       () => {
-        fetch("/api/applicant/application", options)
+        fetch("/api/applicant/", options)
           .then(res => res.json())
           .then(data => {
-            console.log(data);
-            console.log(this.state);
-            if (!data.success) {
-              return this.setState(
-                {
-                  errorMsg: data.msg,
-                  isLoading: false
-                },
-                () => window.scrollTo(0, 0)
-              );
-            }
-
+            this.setState({
+              applicantId: data._id
+            });
             this.props.history.push(
-              `/applicant/${this.companyName}/${this.jobTitle}/${
-                this.applicantId
+              `/applicant/${this.companyName}/${this.jobId}/${
+                data._id
               }`
             );
           })
-          .catch(err => console.log(err));
+          .catch(err => {
+            this.setState({ errorMsg: err.message });
+            console.log(err)
+          });
       }
     );
   };
@@ -123,17 +116,17 @@ class Application extends Component {
 
   over18Handler = () =>
     this.setState(prevState => ({
-      over18: !prevState.over18
+      isOver18: !prevState.isOver18
     }));
 
   legalHandler = () =>
     this.setState(prevState => ({
-      legal: !prevState.legal
+      isLegal: !prevState.isLegal
     }));
 
   isFelonHandler = () => {
     this.setState(prevState => ({
-      felon: !prevState.felon
+      isFelon: !prevState.isFelon
     }));
   };
 
@@ -149,12 +142,12 @@ class Application extends Component {
 
   addExperience = experienceObj =>
     this.setState(prevState => ({
-      workExperience: prevState.workExperience.concat(experienceObj)
+      experience: prevState.experience.concat(experienceObj)
     }));
 
   removeExperience = id =>
     this.setState(prevState => ({
-      workExperience: prevState.workExperience.filter(x => x.id !== id)
+      experience: prevState.experience.filter(x => x.id !== id)
     }));
 
   toggleResumeUploaded() {
@@ -203,12 +196,12 @@ class Application extends Component {
           />
           <ExperienceProfile
             handleChange={this.handleChange}
-            workExperience={this.state.workExperience}
+            experience={this.state.experience}
             addExperience={this.addExperience}
             removeExperience={this.removeExperience}
           />
           <ApplicationDetails
-            applicantId={this.applicantId}
+            applicantId={this.state.applicantId}
             companyId={this.companyId}
             jobId={this.jobId}
             handleChange={this.handleChange}
@@ -221,7 +214,7 @@ class Application extends Component {
                   Are you 18 years or older?
                 </span>
                 <Toggle
-                  defaultChecked={this.state.over18}
+                  defaultChecked={this.state.isOver18}
                   onChange={this.over18Handler}
                 />
               </label>
@@ -233,7 +226,7 @@ class Application extends Component {
                   work in the U.S.?
                 </span>
                 <Toggle
-                  defaultChecked={this.state.legal}
+                  defaultChecked={this.state.isLegal}
                   onChange={this.legalHandler}
                 />
               </label>
@@ -244,7 +237,7 @@ class Application extends Component {
                   Have you ever been convicted of a felony?
                 </span>
                 <Toggle
-                  defaultChecked={this.state.felon}
+                  defaultChecked={this.state.isFelon}
                   onChange={this.isFelonHandler}
                 />
               </label>

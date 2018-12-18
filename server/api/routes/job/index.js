@@ -13,9 +13,25 @@ const router = Router();
 router.get('/', async function(req, res) {
   const token = req.headers['authorization'].split(' ')[1];
   try {
-    const { companyId } = await jwt.verify(token, secret);
+    const { companyId, companyName } = await jwt.verify(token, secret);
     const jobs = await Job.find({ companyId });
-    res.json({ jobs });
+    res.json({ jobs, companyId, companyName });
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
+// get a single job
+router.get('/:companyId/:jobId', async function(req, res) {
+  const { companyId, jobId } = req.params;
+  try {
+    const { title, description, companyName } = await Job.findOne({ companyId, _id: jobId });
+    res.json({
+      title,
+      description,
+      companyName
+    });
   } catch (err) {
     res.sendStatus(500);
     console.error(err);
@@ -35,8 +51,8 @@ router.post('/', async function(req, res) {
       description,
       visits: 0
     });
-    await job.save();
-    res.sendStatus(200);
+    const _job = await job.save();
+    res.json({ _id: _job._id });
   }
   catch (err) {
     res.sendStatus(500);
@@ -47,11 +63,11 @@ router.post('/', async function(req, res) {
 // edit job
 router.post('/edit', async function(req, res) {
   const token = req.headers['authorization'].split(' ')[1];
-  const { id, title, description } = req.body;
+  const { _id, title, description } = req.body;
   try {
     const { companyId } = await jwt.verify(token, secret);
     await Job.updateOne(
-      { companyId, _id: id },
+      { _id, companyId },
       {
         $set: {
           title,

@@ -33,6 +33,7 @@ router.get('/', async function(req, res) {
 
 // get a single applicant
 router.get('/:id', async function(req, res) {
+  const { id } = req.params;
   const token = req.headers['authorization'].split(' ')[1];
   try {
     const { companyId } = await jwt.verify(token, secret);

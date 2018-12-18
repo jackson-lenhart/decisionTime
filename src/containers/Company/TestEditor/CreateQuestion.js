@@ -30,56 +30,23 @@ class CreateQuestion extends Component {
     this.handleOptionChange = this.handleOptionChange.bind(this);
   }
 
-  onSaveClick = event => {
+  onSaveClick(event) {
     event.preventDefault();
-
-    let newQuestion = {
-      id: shortid.generate(),
-      body: this.state.body,
-      type: this.state.questionType
-    };
-
-    if (this.state.questionType === "MULTIPLE_CHOICE") {
+    const { body, questionType, options, correctAnswerId } = this.state;
+    const newQuestion = { body, questionType };
+    if (questionType === "MULTIPLE_CHOICE") {
       newQuestion.options = [];
-      for (let k in this.state.options) {
-        if (this.state.options[k].length > 0) {
+      for (let k in options) {
+        if (options[k].length > 0) {
           newQuestion.options.push({
-            id: k,
-            answer: this.state.options[k],
-            correct: k === this.state.correctAnswerId ? true : false
+            body: options[k],
+            correct: k === correctAnswerId ? true : false
           });
         }
       }
     }
-
-    const options = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.props.token}`
-      },
-      method: "POST",
-      body: JSON.stringify({
-        id: this.props.jobId,
-        test: this.props.test.concat(newQuestion)
-      })
-    };
-
-    this.setState(
-      {
-        isLoading: true
-      },
-      () => {
-        fetch("/api/job/edit-test", options)
-          .then(res => res.json())
-          .then(data => {
-            console.log(data);
-            this.props.createQuestionInState(newQuestion);
-            this.props.toggleCreateQuestion();
-          })
-          .catch(err => console.error(err));
-      }
-    );
-  };
+    this.props.createQuestion(newQuestion);
+  }
 
   setCorrectAnswer(e) {
     this.setState({

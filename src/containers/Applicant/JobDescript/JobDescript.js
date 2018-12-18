@@ -28,22 +28,19 @@ class JobDescript extends Component {
       });
     }
 
-    fetch(`/api/job/job/${this.companyId}/${this.jobId}`)
+    const options = {
+      headers: {
+        'Authorization': `Bearer: `
+      }
+    };
+    fetch(`/api/job/${this.companyId}/${this.jobId}`, options)
       .then(res => res.json())
       .then(data => {
-        console.log(data);
-        if (!data.success) {
-          return this.setState({
-            isLoading: false,
-            isError: true
-          });
-        }
-
         this.setState({
           isLoading: false,
-          companyName: data.job.companyName,
-          title: data.job.title,
-          description: data.job.description
+          title: data.title,
+          description: data.description,
+          companyName: data.companyName
         });
       })
       .catch(err => {

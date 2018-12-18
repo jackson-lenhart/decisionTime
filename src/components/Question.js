@@ -3,7 +3,7 @@ import TextAreaFieldGroup from "./UI/Form/TextAreaFieldGroup";
 
 const Question = props => {
   let question = "";
-  switch (props.question.type) {
+  switch (props.question.questionType) {
     case "MULTIPLE_CHOICE":
       question = (
         <div style={{ padding: "10px", borderBottom: "solid purple 2px" }}>
@@ -16,14 +16,14 @@ const Question = props => {
             <strong>{props.question.body}</strong>
           </p>
           {props.question.options.map(x => (
-            <div key={x.id}>
+            <div key={x._id}>
               <input
                 type="radio"
-                name={props.question.id}
-                value={x.answer}
+                name={props.question._id}
+                value={x.body}
                 onClick={props.handleChange}
               />
-              <label htmlFor={x.id}>{x.answer}</label>
+              <label htmlFor={x._id}>{x.body}</label>
             </div>
           ))}
         </div>
@@ -42,7 +42,7 @@ const Question = props => {
           </p>
           <TextAreaFieldGroup
             type="text"
-            name={props.question.id}
+            name={props.question._id}
             placeholder="Place response here"
             onChange={props.handleChange}
           />

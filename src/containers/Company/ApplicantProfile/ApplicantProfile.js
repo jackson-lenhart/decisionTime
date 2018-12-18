@@ -31,18 +31,10 @@ class ApplicantProfile extends Component {
 		};
 
 		fetch(
-			`/api/company/applicant/${this.applicantId}`,
+			`/api/company/applicants/${this.applicantId}`,
 			options
 		).then(res => res.json())
 		.then(data => {
-			console.log("DATA FROM APPLICANT PROFILE", data);
-			if (!data.success) {
-				return this.setState({
-					isError: true,
-					errorMsg: data.msg
-				});
-			}
-
 			this.setState({
 				isLoading: false,
 				applicant: data.applicant

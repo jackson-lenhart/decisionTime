@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bodyParser from 'body-parser';
 
 import Applicant from '../../../models/applicant';
+import Screening from '../../../models/screening';
 import Resume from '../../../models/applicant/resume';
 
 const router = Router();
@@ -34,7 +35,9 @@ router.post('/', async function(req, res) {
     felonyForm
   } = req.body;
   try {
-    await Applicant.insertOne({
+    const screening = await Screening.findOne({ jobId });
+    const exam = screening.questions;
+    const applicant = new Applicant({
       companyId,
       companyName,
       jobTitle,
@@ -57,9 +60,11 @@ router.post('/', async function(req, res) {
       isLegal,
       isFelon,
       felonyForm,
-      _id: applicantId
+      exam,
+      status: 'INITIALIZED'
     });
-    res.sendStatus(200);
+    const _applicant = await applicant.save();
+    res.json({ _id: _applicant._id });
   } catch (err) {
     res.sendStatus(500);
     console.error(err);
@@ -84,6 +89,37 @@ router.post('/resume/:applicantId', pdfParser, async function(req, res) {
       },
       { upsert: true }
     );
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
+router.get('/test-timestamp/:id', async function(req, res) {
+  const { id } = req.params;
+  const ts = Date.now();
+  try {
+    await Applicant.updateOne(
+      { _id: id },
+      {
+        $set: {
+          testTimestamp: ts,
+          status: 'BEGUN_EXAM'
+        }
+      }
+    );
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(500);
+    console.error(err);
+  }
+});
+
+router.get('/:id', async function(req, res) {
+  const { id } = req.params;
+  try {
+    const applicant = await Applicant.findOne({ _id: id });
+    res.json(applicant);
   } catch (err) {
     res.sendStatus(500);
     console.error(err);

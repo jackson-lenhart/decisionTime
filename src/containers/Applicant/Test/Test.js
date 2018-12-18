@@ -35,26 +35,11 @@ class Test extends React.Component {
   handleSubmit = () => {
     clearInterval(this.incrementer);
 
-    const answerData = this.props.test.map(
-      q =>
-        this.state.answers[q.id]
-          ? q.type === "MULTIPLE_CHOICE"
-            ? {
-                ...q,
-                correct: q.options.find(x =>
-                    x.answer === this.state.answers[q.id]
-                  ).correct,
-                answer: this.state.answers[q.id]
-              }
-            : {
-                ...q,
-                answer: this.state.answers[q.id]
-              }
-          : {
-              ...q,
-              answer: null
-            }
-    );
+    const answers = this.props.test.map(q => ({
+      questionId: q._id,
+      answerType: q.questionType,
+      body: this.state.answers[q._id]
+    }));
 
     const options = {
       headers: {
@@ -62,24 +47,24 @@ class Test extends React.Component {
       },
       method: "POST",
       body: JSON.stringify({
-        answerData,
-        applicantId: this.props.applicant.id,
+        answers,
+        questions: this.props.test,
+        jobId: this.props.jobId,
+        applicantId: this.props.applicant._id,
         secondsElapsed: this.state.secondsElapsed
       })
     };
 
     fetch(
-      `/api/applicant/test-results/${this.props.id}`,
+      `/api/screening/results`,
       options
     )
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        if (!data.success) {
-          return this.props.propagateError();
+      .then(res => {
+        if (res.status === 200) {
+          this.props.redirectToFinished();
+        } else {
+          this.props.propagateError();
         }
-
-        this.props.redirectToFinished();
       })
       .catch(err => console.error(err));
   };
@@ -89,7 +74,7 @@ class Test extends React.Component {
 
   render() {
     const test = this.props.test.map((x, i) => (
-      <div key={x.id}>
+      <div key={x._id}>
         <Question question={x} index={i} handleChange={this.handleChange} />
       </div>
     ));

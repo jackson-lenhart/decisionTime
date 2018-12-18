@@ -9,13 +9,20 @@ class EditJob extends Component {
     super(props);
     this.state = {
       isLoading: false,
-      isError: false,
-      title: props.job.title,
-      description: props.job.description
+      isError: false
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentWillMount() {
+    const { title, description } = this.props.job;
+    if (!title || !description) {
+      this.setState({ isError: true });
+    } else {
+      this.setState({ title, description });
+    }
   }
 
   handleChange(e) {
@@ -29,7 +36,7 @@ class EditJob extends Component {
 
     const job = {
       ...this.state,
-      id: this.props.id
+      _id: this.props.id
     };
 
     const options = {
@@ -46,26 +53,24 @@ class EditJob extends Component {
         isLoading: true
       },
       () => {
-        fetch("/api/job/edit-job", options)
-          .then(res => res.json())
-          .then(data => {
-            if (!data.success) {
-              console.log(data);
-              return this.setState({
-                isError: true,
-                isLoading: false
+        fetch("/api/job/edit", options)
+          .then(res => {
+            if (res.status === 200) {
+              this.setState(
+                {
+                  isLoading: false
+                },
+                () => {
+                  this.props.editJobInState(job);
+                  this.props.toggleEditJob();
+                }
+              );
+            } else {
+              this.setState({
+                isLoading: false,
+                isError: true
               });
             }
-            console.log(data);
-            this.setState(
-              {
-                isLoading: false
-              },
-              () => {
-                this.props.editJobInState(job);
-                this.props.toggleEditJob();
-              }
-            );
           })
           .catch(err => {
             console.error(err);

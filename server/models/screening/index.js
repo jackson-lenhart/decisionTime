@@ -15,8 +15,9 @@ const screeningSchema = mongoose.Schema({
   questions: {
     type: [questionSchema],
     required: true
-  },
-  visits: Number
+  }
 });
+
+screeningSchema.plugin(timestamps);
 
 export default mongoose.model('Screening', screeningSchema);

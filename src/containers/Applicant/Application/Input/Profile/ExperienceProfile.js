@@ -179,7 +179,7 @@ class ExperienceProfile extends Component {
         <div className="subheader">
           <label>Employment History</label>
         </div>
-        {this.props.workExperience.map(exp => (
+        {this.props.experience.map(exp => (
           <div className="completed" key={exp.id}>
             <p>
               <strong>Company: </strong>

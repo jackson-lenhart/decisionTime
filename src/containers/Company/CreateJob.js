@@ -55,20 +55,11 @@ class CreateJob extends Component {
       },
       () => {
         fetch("/api/job/", options)
-          .then(res => {
-            if (res.status === 200) {
-              this.setState({
-                isLoading: false
-              }, () => {
-                this.props.createJobInState(job);
-                this.props.toggleCreateJob();
-              })
-            } else {
-              this.setState({
-                isError: true,
-                isLoading: false
-              });
-            }
+          .then(res =>  res.json())
+          .then(data => {
+            this.props.createJobInState({ ...job, _id: data._id });
+            this.props.toggleCreateJob();
+            this.setState({ isLoading: false });
           })
           .catch(err => {
             console.error(err);

@@ -19,6 +19,7 @@ class Jobs extends Component {
       companyId: "",
       companyName: "",
       jobs: [],
+      exams: [],
       viewingJobId: null,
       createJobMounted: false,
       editJobMounted: false,
@@ -27,6 +28,8 @@ class Jobs extends Component {
       deleteJobModal: false,
       viewDescription: false
     };
+
+    this.editJobInState = this.editJobInState.bind(this);
 
     this.viewDescriptionHandler = this.viewDescriptionHandler.bind(this);
     this.token = localStorage.getItem("token");
@@ -46,10 +49,22 @@ class Jobs extends Component {
           isLoading: false,
           jobs: data.jobs,
           viewingJobId: data.jobs.length > 0 ? data.jobs[0]._id : null,
-
-          // companyId: data.companyId,
-          // companyName: data.companyName
+          companyId: data.companyId,
+          companyName: data.companyName
         });
+        if (data.jobs.length > 0) {
+          return fetch('/api/screening/' + data.jobs[0]._id, options)
+            .then(res => res.json());
+        } else {
+          return undefined;
+        }
+      })
+      .then(maybe => {
+        if (maybe) {
+          this.setState({ exams: maybe });
+        } else {
+          // do nothing
+        }
       })
       .catch(err => {
         console.error(err);
@@ -72,19 +87,21 @@ class Jobs extends Component {
       viewingJobId: job.id
     }));
 
-  editJobInState = job =>
-    this.setState(prevState => ({
-      jobs: prevState.jobs.map(
-        x =>
-          x.id === job.id
-            ? {
-                ...x,
-                title: job.title,
-                description: job.description
-              }
-            : x
-      )
-    }));
+  editJobInState(job) {
+    const jobs = [];
+    for (const j of this.state.jobs) {
+      if (j._id === job._id) {
+        jobs.push({
+          ...j,
+          title: job.title,
+          description: job.description
+        });
+      } else {
+        jobs.push(j);
+      }
+    }
+    this.setState({ jobs });
+  }
 
   viewDescriptionHandler = () => {
     this.setState({ viewDescription: !this.state.viewDescription });
@@ -92,51 +109,13 @@ class Jobs extends Component {
 
   deleteJobInState = id =>
     this.setState(prevState => {
-      let newJobs = prevState.jobs.filter(x => x.id !== id);
+      let newJobs = prevState.jobs.filter(x => x._id !== id);
       return {
         jobs: newJobs,
+        // find a random new one to view or if none left, reset viewingJobId to null
         viewingJobId: newJobs.length > 0 ? _.sample(newJobs).id : null
       };
     });
-
-  createQuestionInState = q =>
-    this.setState(prevState => ({
-      jobs: prevState.jobs.map(
-        x =>
-          x.id === this.state.viewingJobId
-            ? {
-                ...x,
-                test: x.test.concat(q)
-              }
-            : x
-      )
-    }));
-
-  editQuestionInState = q =>
-    this.setState(prevState => ({
-      jobs: prevState.jobs.map(
-        x =>
-          x.id === this.state.viewingJobId
-            ? {
-                ...x,
-                test: x.test.map(y => (y.id === q.id ? q : y))
-              }
-            : x
-      )
-    }));
-
-  deleteQuestionInState = id =>
-    this.setState(prevState => ({
-      jobs: prevState.jobs.map(
-        x =>
-          x.id === this.state.viewingJobId
-            ? {
-                ...x,
-                test: x.test.filter(y => y.id !== id)
-              }
-            : x
-      )
-    }));
 
   toggleCreateJob = () =>
     this.setState(prevState => ({
@@ -196,7 +175,7 @@ class Jobs extends Component {
             key={x._id}
             className="jobs"
             style={style}
-            onClick={() => this.setViewingJobId(x.id)}
+            onClick={() => this.setViewingJobId(x._id)}
           >
             {x.title.length < 17 ? x.title : x.title.substring(0, 16) + "..."}
             <button

@@ -257,7 +257,7 @@ describe('Jobs', function() {
         },
         method: 'POST',
         body: JSON.stringify({
-          id: testJob._id,
+          _id: testJob._id,
           title: 'Test Job Edited',
           description: 'Test description edited.'
         })
@@ -373,8 +373,8 @@ describe('Screening', function() {
     fetch(host + '/screening/' + testJob._id, options)
     .then(res => res.json())
     .then(data => {
-      expect(data.exams.length).to.equal(1);
-      const question = data.exams[0].questions[0];
+      expect(data.length).to.equal(1);
+      const question = data[0].questions[0];
       expect(question.body).to.equal('Testing exam modify');
       done();
     })
