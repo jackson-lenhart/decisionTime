@@ -9,6 +9,9 @@ const mongoUrl = process.env.MONGO_URL;
 
 const app = express();
 
+// To fix deprecation warning
+mongoose.set('useFindAndModify', false);
+
 mongoose.connect(mongoUrl, { useNewUrlParser: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));

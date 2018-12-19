@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import sgMail from '@sendgrid/mail';
 import 'dotenv/config';
 
 import Applicant from '../../../models/applicant'
@@ -75,6 +76,7 @@ router.post('/email-reminder', async function(req, res) {
     companyName,
     jobTitle
   } = req.body;
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   try {
     await jwt.verify(token, secret);
     const url = host

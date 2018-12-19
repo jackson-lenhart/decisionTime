@@ -35,6 +35,7 @@ router.post('/', async function(req, res) {
     felonyForm
   } = req.body;
   try {
+    // Eventually, this should select one at random rather than just picking the first one every time
     const screening = await Screening.findOne({ jobId });
     const exam = screening.questions;
     const applicant = new Applicant({

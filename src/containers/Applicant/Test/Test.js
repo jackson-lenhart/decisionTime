@@ -56,7 +56,7 @@ class Test extends React.Component {
     };
 
     fetch(
-      `/api/screening/results`,
+      '/api/screening/results',
       options
     )
       .then(res => {

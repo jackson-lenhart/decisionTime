@@ -125,8 +125,8 @@ class IndividualQuestion extends Component {
                   };
                 }
                 return (
-                  <div key={x.id}>
-                    <strong style={highlighter}>{x.answer}</strong>
+                  <div key={x._id}>
+                    <strong style={highlighter}>{x.body}</strong>
                   </div>
                 );
               })}

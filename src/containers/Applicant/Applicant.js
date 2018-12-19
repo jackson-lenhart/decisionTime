@@ -13,8 +13,8 @@ class Applicant extends Component {
       isAuth: false,
       isError: false,
       applicant: {},
-      secondsElapsed: 0,
       exam: [],
+      secondsElapsed: 0,
       buttonClicked: false
     };
 
@@ -44,25 +44,27 @@ class Applicant extends Component {
           this.setState(
             {
               applicant,
+              exam: applicant.exam,
               isLoading: false,
               secondsElapsed: Math.floor((Date.now() - applicant.testTimestamp) / 1000),
-              isAuth: true,
-              test: applicant.exam
+              isAuth: true
             },
             this.changePageHandler
           );
         } else {
+          // Here we haven't yet begun the test
           this.setState({
             applicant,
+            exam: applicant.exam,
             isLoading: false,
-            isAuth: true,
-            test: applicant.exam
+            isAuth: true
           });
         }
       })
       .catch(err => console.error(err));
   }
 
+  // we may want to put this in TestIntro at some point?
   startTest = () => {
     if (!this.id) {
       this.props.history.push("/");
