@@ -89,7 +89,8 @@ class IndividualQuestion extends Component {
           toggleEditQuestion={this.toggleEditQuestion}
           test={this.props.test}
           jobId={this.props.jobId}
-          editQuestionInState={this.props.editQuestionInState}
+          examId={this.props.examId}
+          editQuestion={this.props.editQuestion}
           token={this.props.token}
         />
       );
@@ -134,6 +135,7 @@ class IndividualQuestion extends Component {
           break;
         default:
           console.error("Invalid question type");
+          console.log('Question:', this.props.question);
           return <p>Error</p>;
       }
       actionBtns = (

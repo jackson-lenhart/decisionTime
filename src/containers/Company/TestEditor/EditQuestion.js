@@ -17,13 +17,13 @@ class EditQuestion extends Component {
     this.state = {
       isLoading: false,
       isError: false,
-      questionType: props.question.type,
+      questionType: props.question.questionType,
       options:
-        props.question.type === "MULTIPLE_CHOICE"
+        props.question.questionType === "MULTIPLE_CHOICE"
           ? props.question.options.reduce(
               (acc, x) => ({
                 ...acc,
-                [x.id]: x.answer
+                [x._id]: x.body
               }),
               {}
             )
@@ -32,7 +32,7 @@ class EditQuestion extends Component {
       correctAnswerId:
         props.question.type === "MULTIPLE_CHOICE"
           ? props.question.options.find(x => x.correct)
-            ? props.question.options.find(x => x.correct).id
+            ? props.question.options.find(x => x.correct)._id
             : null
           : null,
 
@@ -51,9 +51,9 @@ class EditQuestion extends Component {
     event.preventDefault();
 
     let newQuestion = {
-      id: this.props.question.id,
+      _id: this.props.question._id,
       body: this.state.body,
-      type: this.state.questionType
+      questionType: this.state.questionType
     };
 
     if (this.state.questionType === "MULTIPLE_CHOICE") {
@@ -61,58 +61,13 @@ class EditQuestion extends Component {
       for (let k in this.state.options) {
         if (this.state.options[k].length > 0) {
           newQuestion.options.push({
-            id: k,
-            answer: this.state.options[k],
+            body: this.state.options[k],
             correct: k === this.state.correctAnswerId ? true : false
           });
         }
       }
     }
-
-    const options = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.props.token}`
-      },
-      method: "POST",
-      body: JSON.stringify({
-        id: this.props.jobId,
-        test: this.props.test.map(
-          x => (x.id === this.props.question.id ? newQuestion : x)
-        )
-      })
-    };
-
-    this.setState(
-      {
-        isLoading: true
-      },
-      () => {
-        fetch("/api/job/edit-test", options)
-          .then(res => res.json())
-          .then(data => {
-            if (!data.success) {
-              console.log(data);
-              return this.setState({
-                isError: true,
-                isLoading: false
-              });
-            }
-
-            console.log(data);
-            this.setState(
-              {
-                isLoading: false
-              },
-              () => {
-                this.props.editQuestionInState(newQuestion);
-                this.props.toggleEditQuestion();
-              }
-            );
-          })
-          .catch(err => console.error(err));
-      }
-    );
+    this.props.editQuestion(newQuestion);
   };
 
   setCorrectAnswer(e) {

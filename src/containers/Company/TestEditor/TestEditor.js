@@ -21,16 +21,11 @@ class TestEditor extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.createExam = this.createExam.bind(this);
     this.createQuestion = this.createQuestion.bind(this);
+    this.editQuestion = this.editQuestion.bind(this);
   }
 
   componentDidMount() {
-    const options = {
-      headers: {
-        'Authorization': `Bearer ${this.props.token}`
-      }
-    };
-    fetch(`/api/screening/${this.props.job._id}`, options)
-    .then(res => res.json())
+    this.loadExams()
     .then(exams => {
       this.setState({
         exams,
@@ -44,6 +39,37 @@ class TestEditor extends Component {
       });
       console.error(err);
     });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.job._id !== this.props.job._id) {
+      this.toggleSpinner().then(_ => this.loadExams())
+      .then(exams => {
+        this.setState({ exams }, () => this.toggleSpinner())
+      })
+      .catch(err => {
+        this.setState({ isError: true });
+        console.error(err);
+      })
+    }
+  }
+
+  toggleSpinner() {
+    return new Promise(resolve =>
+      this.setState(prevState => ({
+        isLoading: !prevState.isLoading
+      }), () => resolve())
+    );
+  }
+
+  loadExams() {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`
+      }
+    };
+    return fetch(`/api/screening/${this.props.job._id}`, options)
+      .then(res => res.json())
   }
 
   createExam() {
@@ -72,9 +98,7 @@ class TestEditor extends Component {
       }));
     })
     .catch(err => {
-      this.setState({
-        isError: true
-      });
+      this.setState({ isError: true });
       console.error(err);
     });
   }
@@ -94,14 +118,57 @@ class TestEditor extends Component {
           questions: exam.questions.concat(question)
         })
       };
-      fetch('/api/screening/edit', options)
+      this.toggleSpinner().then(_ =>
+        fetch('/api/screening/edit', options)
+      )
       .then(res => res.json())
       .then(screening => {
         this.setState(prevState => ({
           exams: prevState.exams.map(ex =>
             ex._id === screening._id ? screening : ex
           )
-        }));
+        }), () => {
+          this.toggleSpinner();
+          this.toggleCreateQuestion();
+        });
+      })
+      .catch(err => {
+        this.setState({ isError: true });
+        console.error(err);
+      });
+    } else {
+      this.setState({ isError: true });
+    }
+  }
+
+  editQuestion(newQuestion) {
+    const { exams, viewingExamId } = this.state;
+    const exam = exams.find(ex => ex._id === viewingExamId);
+    if (exam && exam.questions) {
+      const options = {
+        headers: {
+          'Authorization': `Bearer ${this.props.token}`,
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          screeningId: exam._id,
+          questions: exam.questions.map(q => q._id === newQuestion._id ? newQuestion : q)
+        })
+      };
+      this.toggleSpinner().then(_ =>
+        fetch('/api/screening/edit', options)
+      )
+      .then(res => res.json())
+      .then(screening => {
+        this.setState(prevState => ({
+          exams: prevState.exams.map(ex =>
+            ex._id === screening._id ? screening : ex
+          )
+        }), () => {
+          this.toggleSpinner();
+          // toggle off edit question somehow
+        });
       })
       .catch(err => {
         this.setState({ isError: true });
@@ -131,12 +198,12 @@ class TestEditor extends Component {
   }
 
   render() {
-    if (this.state.isLoading) {
-      return <Spinner />;
-    }
-
     if (this.state.isError) {
       return <p>There was an error.</p>;
+    }
+
+    if (this.state.isLoading) {
+      return <Spinner />;
     }
 
     let questionList = "";
@@ -145,9 +212,7 @@ class TestEditor extends Component {
         <QuestionList
           test={this.state.exams.find(x => x._id === this.state.viewingExamId)}
           jobId={this.props.job._id}
-          deleteQuestionInState={this.props.deleteQuestionInState}
-          createQuestionInState={this.props.createQuestionInState}
-          editQuestionInState={this.props.editQuestionInState}
+          editQuestion={this.editQuestion}
           token={this.props.token}
         />
       );

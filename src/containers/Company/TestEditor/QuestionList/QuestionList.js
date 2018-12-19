@@ -11,11 +11,10 @@ class QuestionList extends Component {
         question={question}
         key={question._id}
         index={i}
+        examId={this.props.test._id}
         token={props.token}
         jobId={props.jobId}
-        deleteQuestionInState={props.deleteQuestionInState}
-        createQuestionInState={props.createQuestionInState}
-        editQuestionInState={props.editQuestionInState}
+        editQuestion={props.editQuestion}
         test={test}
       />
     ));

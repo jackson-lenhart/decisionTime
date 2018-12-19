@@ -52,19 +52,6 @@ class Jobs extends Component {
           companyId: data.companyId,
           companyName: data.companyName
         });
-        if (data.jobs.length > 0) {
-          return fetch('/api/screening/' + data.jobs[0]._id, options)
-            .then(res => res.json());
-        } else {
-          return undefined;
-        }
-      })
-      .then(maybe => {
-        if (maybe) {
-          this.setState({ exams: maybe });
-        } else {
-          // do nothing
-        }
       })
       .catch(err => {
         console.error(err);
@@ -246,9 +233,6 @@ class Jobs extends Component {
         <TestEditor
           token={this.token}
           job={this.state.jobs.find(x => x._id === this.state.viewingJobId)}
-          createQuestionInState={this.createQuestionInState}
-          editQuestionInState={this.editQuestionInState}
-          deleteQuestionInState={this.deleteQuestionInState}
         />
       );
     }

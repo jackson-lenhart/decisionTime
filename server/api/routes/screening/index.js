@@ -57,7 +57,8 @@ router.post('/edit', async function(req, res) {
       { companyId, _id: screeningId },
       {
         $set: { questions }
-      }
+      },
+      { new: true }
     );
     res.json(screening);
   } catch (err) {
