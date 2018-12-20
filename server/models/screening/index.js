@@ -15,7 +15,8 @@ const screeningSchema = mongoose.Schema({
   questions: {
     type: [questionSchema],
     required: true
-  }
+  },
+  name: String
 });
 
 screeningSchema.plugin(timestamps);

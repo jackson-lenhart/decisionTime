@@ -28,14 +28,14 @@ router.get('/:jobId', async function(req, res) {
 // creates new screening exam
 router.post('/', async function(req, res) {
   const token = req.headers['authorization'].split(' ')[1];
-  const { jobId, questions } = req.body;
+  const { name, jobId, questions } = req.body;
   try {
     const { companyId } = await jwt.verify(token, secret);
     const screening = new Screening({
+      name,
       companyId,
       jobId,
-      questions,
-      visits: 0
+      questions
     });
     const { _id } = await screening.save();
     // should we really be giving back this id? Yet to be determined
@@ -48,6 +48,7 @@ router.post('/', async function(req, res) {
 });
 
 // updates existing screening exam
+// Possible TODO: support editing exam name
 router.post('/edit', async function(req, res) {
   const token = req.headers['authorization'].split(' ')[1];
   const { screeningId, questions } = req.body;

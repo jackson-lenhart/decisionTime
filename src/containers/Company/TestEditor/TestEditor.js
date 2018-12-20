@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import QuestionList from "./QuestionList/QuestionList";
 import CreateQuestion from "./CreateQuestion";
 import Spinner from "../../../components/UI/Spinner/Spinner";
+import Modal from "../../../components/UI/Modal/Modal";
 
 class TestEditor extends Component {
   constructor(props) {
@@ -11,7 +12,8 @@ class TestEditor extends Component {
       isLoading: true,
       isError: false,
       createQuestionMounted: false,
-      name: "",
+      createExamMounted: false,
+      examName: "",
       viewingExamId: "0",
       exams: []
     };
@@ -19,7 +21,9 @@ class TestEditor extends Component {
     this.toggleCreateQuestion = this.toggleCreateQuestion.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.toggleCreateExam = this.toggleCreateExam.bind(this);
     this.createExam = this.createExam.bind(this);
+    this.deleteExam = this.deleteExam.bind(this);
     this.createQuestion = this.createQuestion.bind(this);
     this.editQuestion = this.editQuestion.bind(this);
   }
@@ -45,7 +49,10 @@ class TestEditor extends Component {
     if (prevProps.job._id !== this.props.job._id) {
       this.toggleSpinner().then(_ => this.loadExams())
       .then(exams => {
-        this.setState({ exams }, () => this.toggleSpinner())
+        this.setState({
+          exams,
+          viewingExamId: exams.length > 0 ? exams[0]._id : '0'
+        }, () => this.toggleSpinner())
       })
       .catch(err => {
         this.setState({ isError: true });
@@ -72,9 +79,10 @@ class TestEditor extends Component {
       .then(res => res.json())
   }
 
-  createExam() {
+  createExam(e) {
+    e.preventDefault();
     const exam = {
-      name: this.state.name,
+      name: this.state.examName,
       jobId: this.props.job._id,
       questions: []
     };
@@ -94,8 +102,40 @@ class TestEditor extends Component {
           ...exam,
           _id: data._id
         }),
-        viewingExamId: data._id
+        viewingExamId: data._id,
+        createExamMounted: false
       }));
+    })
+    .catch(err => {
+      this.setState({ isError: true });
+      console.error(err);
+    });
+  }
+
+  deleteExam() {
+    const { viewingExamId } = this.state;
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`,
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({ screeningId: viewingExamId })
+    };
+    fetch('/api/screening/remove', options)
+    .then(res => {
+      if (res.status === 200) {
+        this.setState(prevState => {
+          // filter out deleted exam in state
+          const newExams = prevState.exams.filter(ex => ex._id !== prevState.viewingExamId);
+          return {
+            exams: newExams,
+            viewingExamId: newExams.length > 0 ? newExams[0]._id : '0'
+          };
+        });
+      } else {
+        console.error('Invalid status code ' + res.status);
+      }
     })
     .catch(err => {
       this.setState({ isError: true });
@@ -185,6 +225,12 @@ class TestEditor extends Component {
     }));
   }
 
+  toggleCreateExam() {
+    this.setState(prevState => ({
+      createExamMounted: !prevState.createExamMounted
+    }));
+  }
+
   handleChange(e) {
     this.setState({
       [e.target.name]: e.target.value
@@ -198,6 +244,9 @@ class TestEditor extends Component {
   }
 
   render() {
+    // destructure everything else later
+    const { viewingExamId, createExamMounted } = this.state;
+
     if (this.state.isError) {
       return <p>There was an error.</p>;
     }
@@ -257,11 +306,39 @@ class TestEditor extends Component {
           <option value="0" disabled>Select exam</option>
           {
             this.state.exams.map((ex, i) =>
-              <option key={ex._id} value={ex._id}>{i}</option>
+              <option key={ex._id} value={ex._id}>{ex.name || i}</option>
             )
           }
         </select>
-        <button type="button" onClick={this.createExam}>Create Exam</button>
+        <span style={{ padding: '1%' }}>
+          <button
+            style={{ color: "purple" }}
+            className="btn btn-light"
+            type="button"
+            onClick={this.toggleCreateExam}
+          >
+            Create Exam
+          </button>
+        </span>
+        <Modal show={createExamMounted} modalClosed={this.toggleCreateExam}>
+          <form onSubmit={this.createExam}>
+            <label htmlFor="examName" style={{ paddingRight: '1%' }}>Give your new exam a name:</label>
+            <input type="text" name="examName" onChange={this.handleChange} />
+            <button style={{ color: 'purple' }} className="btn btn-light">Create</button>
+            <button
+              style={{ color: 'purple' }}
+              className="btn btn-light"
+              type="button"
+              onClick={this.toggleCreateExam}
+            >Cancel</button>
+          </form>
+        </Modal>
+        { /* TODO: make it harder to delete exam. Probably use modal again */ }
+        {
+          viewingExamId && viewingExamId !== '0'
+          ? <button type="button" onClick={this.deleteExam}>Delete Exam</button>
+          : ''
+        }
         {createQuestionBtn}
         {createQuestion}
         {questionList}

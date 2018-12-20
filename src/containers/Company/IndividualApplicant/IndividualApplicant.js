@@ -3,85 +3,29 @@ import dateFormat from "dateformat";
 
 import "./IndividualApplicant.css";
 import { Link } from "react-router-dom";
-import Spinner from "../../../components/UI/Spinner/Spinner";
 
 class IndividualApplicant extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      isLoading: false,
-      isError: false,
-      errorMsg: "",
-    };
 
+    // might not even need this constructor...
+    // thinking it could be just a function and pass token as prop
+    // leaving it for now
     this.token = localStorage.getItem("token");
   }
 
-  onDelete = e => {
-    e.preventDefault();
-
-    const options = {
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        "Content-Type": "application/json"
-      },
-      method: "POST",
-      body: JSON.stringify({
-        email: this.props.applicant.email,
-        id: this.props.applicant._id
-      })
-    };
-
-    this.setState(
-      {
-        isLoading: true
-      },
-      () => {
-        // TODO
-        fetch("/api/applicant/remove", options)
-          .then(res => res.json())
-          .then(data => {
-            console.log(data);
-            if (!data.success) {
-              return this.setState({
-                isLoading: false,
-                isError: true,
-                errorMsg: data.msg
-              });
-            }
-
-            this.props.deleteApplicant(this.props.applicant);
-          })
-          .catch(err => {
-            this.setState({
-              isLoading: false,
-              isError: true,
-              errorMsg: err.message
-            });
-            console.error(err);
-          });
-      }
-    );
-  };
-
+  // this is kind of lol. Will probably inline this later leaving it now for lulz
   completionHandler = () => {
-    if (this.props.applicant.status === 'COMPLETE') {
-      return <p style={{ color: "green" }}>COMPLETE</p>;
-    } else {
-      return <p style={{ color: "red" }}>{this.props.applicant.status}</p>;
+    const { status } = this.props.applicant;
+    if (status === 'COMPLETE') {
+      return <p style={{ color: "green" }}>Complete!</p>;
+    } else if (status === 'BEGUN_EXAM') {
+      return <p style={{ color: "red" }}>In Progress</p>;
     }
   };
 
   render() {
     const { applicant } = this.props;
-
-    if (this.state.isLoading) {
-      return <Spinner />;
-    }
-
-    if (this.state.isError) {
-      return <p>{this.state.errorMsg}</p>;
-    }
 
     return (
       <div className="Applicant">
@@ -121,7 +65,7 @@ class IndividualApplicant extends Component {
             paddingTop: '15px'
           }}>
             <p style={{fontSize:"10px"}}>
-              Created: <strong>{dateFormat(applicant.timestamp, "mmmm dS, yyyy")}</strong>
+              Created: <strong>{dateFormat(applicant.createdAt, "mmmm dS, yyyy")}</strong>
             </p>
           </div>
         </div>
