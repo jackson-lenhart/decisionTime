@@ -23,6 +23,8 @@ class Company extends Component {
       createApplicantMounted: false
     };
 
+    this.updateSearch = this.updateSearch.bind(this);
+
     this.token = localStorage.getItem("token");
   }
 
@@ -33,27 +35,24 @@ class Company extends Component {
       }
     };
 
+    // Here we should only be fetching 1 endpoint for performance reasons
+    // but first we need to decide on what the home page will be
+    // applicant listing or analytics
+    // I'm thinking analytics on the home page and then applicant listing on a different page
     Promise.all([
       fetch("/api/company/applicants", options).then(res => res.json()),
       fetch("/api/job/", options).then(res => res.json())
     ])
       .then(data => {
-        if (data.includes(responseObj => responseObj.success === false)) {
-          return this.setState({
-            isLoading: false,
-            isError: true
-          });
-        } else {
-          const companyName = data[0].companyName;
-          const [{ applicants }, { jobs }] = data;
-          this.setState({
-            companyName,
-            applicants,
-            jobs,
-            isLoading: false,
-            totalJobViews: jobs.reduce((acc, x) => acc + x.visits, 0)
-          });
-        }
+        const companyName = data[0].companyName;
+        const [{ applicants }, { jobs }] = data;
+        this.setState({
+          companyName,
+          applicants,
+          jobs,
+          isLoading: false,
+          totalJobViews: jobs.reduce((acc, x) => acc + x.visits, 0)
+        });
       })
       .catch(err => {
         console.error(err);
@@ -78,40 +77,9 @@ class Company extends Component {
 
   putJobsInState = jobs => this.setState({ jobs });
 
-  deleteApplicant = applicant =>
-    this.setState(prevState => ({
-      isLoading: false,
-      applicants: prevState.applicants.filter(x => x.id !== applicant.id)
-    }));
-
-  createApplicant = applicant =>
-    this.setState(prevState => ({
-      isLoading: false,
-      applicants: [applicant].concat(prevState.applicants),
-      createApplicantMounted: false
-    }));
-
-  editApplicant = applicant =>
-    this.setState(prevState => ({
-      applicants: prevState.applicants.map(
-        x =>
-          x.id === applicant.id
-            ? {
-                ...x,
-                firstName: applicant.firstName,
-                lastName: applicant.lastName
-              }
-            : x
-      )
-    }));
-
-  toggleCreateApplicant = () =>
-    this.setState(prevState => ({
-      createApplicantMounted: !prevState.createApplicantMounted
-    }));
-
-  updateSearch = event =>
+  updateSearch(event) {
     this.setState({ search: event.target.value.substr(0, 20) });
+  }
 
   render() {
     if (this.state.isLoading) {
@@ -121,30 +89,6 @@ class Company extends Component {
     if (this.state.isError) {
       return <p>{this.state.errorMsg}</p>;
     }
-
-    let createApplicantBtn = "";
-    let createApplicant = "";
-    /*if (this.state.createApplicantMounted) {
-      createApplicant = (
-        <NewApplicant
-          token={this.token}
-          createApplicant={this.createApplicant}
-          toggleCreateApplicant={this.toggleCreateApplicant}
-          putJobsInState={this.putJobsInState}
-          jobs={this.state.jobs}
-        />
-      );
-    } else {
-      createApplicantBtn = (
-        <button
-          className="createBtn"
-          type="button"
-          onClick={this.toggleCreateApplicant}
-        >
-          Create New Applicant
-        </button>
-      );
-    }*/
 
     let applicantList = "";
     if (this.state.applicants.length > 0) {
@@ -164,15 +108,11 @@ class Company extends Component {
       <div className="Company">
         <div>
           <div className="row">
-            {/* <div className="CompanyName"> */}
             <div className="col-md-6">
               <h1>
                 <strong>{this.state.companyName}</strong>
               </h1>
-              {createApplicant}
-              {createApplicantBtn}
             </div>
-            {/* </div> */}
             <div
               className="col-md-6"
               style={{ float: "right", textAlign: "center" }}
