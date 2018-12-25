@@ -28,12 +28,7 @@ class JobDescript extends Component {
       });
     }
 
-    const options = {
-      headers: {
-        'Authorization': `Bearer: `
-      }
-    };
-    fetch(`/api/job/${this.companyId}/${this.jobId}`, options)
+    fetch(`/api/job/${this.companyId}/${this.jobId}`)
       .then(res => res.json())
       .then(data => {
         this.setState({
@@ -50,6 +45,27 @@ class JobDescript extends Component {
           isError: true
         });
       });
+
+      // analytics
+      const options = {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          companyId: this.companyId,
+          jobId: this.jobId
+        })
+      };
+      fetch('/api/analytics/', options)
+      .then(res => {
+        if (res.status !== 200) {
+          console.error('Could not post visit data');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+      })
   }
 
   routeToApplication() {

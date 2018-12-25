@@ -7,6 +7,7 @@ import Company from "./CompanyIndex/Company";
 import CompanyNav from "./CompanyNav/CompanyNav";
 import Jobs from "./Jobs";
 import ApplicantProfile from "./ApplicantProfile/ApplicantProfile";
+import Dashboard from "./Dashboard";
 
 import Navbar from "../.././components/UI/layout/Navbar";
 
@@ -54,6 +55,7 @@ class CompanyRouter extends Component {
 								<Navbar history={ history } logout={ this.logout } />
 								<CompanyNav />
 								<Route exact path="/company" component={ Company } />
+                <Route path="/company/dashboard" component={ Dashboard } />
 								<Route path="/company/jobs" component={ Jobs } />
 								<Route path="/company/applicant/:applicantId" component={ ApplicantProfile } />
 							</div>
