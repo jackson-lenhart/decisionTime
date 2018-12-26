@@ -8,7 +8,6 @@ import "./IndividualQuestion.css";
 class IndividualQuestion extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       isLoading: false,
       isError: false,
@@ -16,7 +15,6 @@ class IndividualQuestion extends Component {
     };
 
     this.toggleEditQuestion = this.toggleEditQuestion.bind(this);
-    this.deleteQuestion = this.deleteQuestion.bind(this);
   }
 
   toggleEditQuestion() {
@@ -24,51 +22,6 @@ class IndividualQuestion extends Component {
       editQuestionMounted: !prevState.editQuestionMounted
     }));
   }
-
-  deleteQuestion = () => {
-    const newTest = this.props.test.filter(
-      x => x._id !== this.props.question._id
-    );
-
-    const options = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.props.token}`
-      },
-      method: "POST",
-      body: JSON.stringify({
-        screeningId: this.props.jobId,
-        questions: newTest
-      })
-    };
-
-    this.setState(
-      {
-        isLoading: true
-      },
-      () => {
-        fetch("/api/screening/edit", options)
-          .then(res => res.json())
-          .then(data => {
-            if (!data.success) {
-              console.log(data);
-              return this.setState({
-                isError: true,
-                isLoading: false
-              });
-            }
-            console.log(data);
-            this.setState(
-              {
-                isLoading: false
-              },
-              () => this.props.deleteQuestionInState(this.props.question._id)
-            );
-          })
-          .catch(err => console.error(err));
-      }
-    );
-  };
 
   render() {
     if (this.state.isLoading) {
@@ -79,6 +32,7 @@ class IndividualQuestion extends Component {
       return <p>Error</p>;
     }
 
+    // TODO: clean this up (probably just inline it)
     let question = "";
     let editQuestion = "";
     let actionBtns = "";
@@ -142,7 +96,7 @@ class IndividualQuestion extends Component {
         <ActionButtons
           isEditing={false}
           editHandler={this.toggleEditQuestion}
-          deleteHandler={this.deleteQuestion}
+          deleteHandler={() => this.props.deleteQuestion(this.props.question._id)}
         />
       );
     }

@@ -59,7 +59,6 @@ class CreateJob extends Component {
           .then(data => {
             this.props.createJobInState({ ...job, _id: data._id });
             this.props.toggleCreateJob();
-            this.setState({ isLoading: false });
           })
           .catch(err => {
             console.error(err);

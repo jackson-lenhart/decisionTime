@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import timestamps from 'mongoose-timestamp';
 
-const visitSchema = mongoose.Schema({
+const viewSchema = mongoose.Schema({
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true
@@ -9,9 +9,13 @@ const visitSchema = mongoose.Schema({
   jobId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true
+  },
+  jobTitle: {
+    type: String,
+    required: true
   }
 });
 
-visitSchema.plugin(timestamps);
+viewSchema.plugin(timestamps);
 
-export default mongoose.model('Visit', visitSchema);
+export default mongoose.model('View', viewSchema);

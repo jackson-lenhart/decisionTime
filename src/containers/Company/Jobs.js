@@ -71,7 +71,7 @@ class Jobs extends Component {
   createJobInState = job =>
     this.setState(prevState => ({
       jobs: prevState.jobs.concat(job),
-      viewingJobId: job.id
+      viewingJobId: job._id
     }));
 
   editJobInState(job) {
@@ -299,13 +299,6 @@ class Jobs extends Component {
       );
     }
 
-    let visits = "";
-    if (this.state.viewingJobId) {
-      let numVisitors = jobs.find(x => x._id === viewingJobId).visitors;
-
-      visits = <p>This job has had {numVisitors} visitors so far</p>;
-    }
-
     let editJobModal = null;
 
     if (this.state.editJobModal) {
@@ -353,7 +346,6 @@ class Jobs extends Component {
           </div>
           <div className="column2">
             <div className="joblink">
-              {visits}
               {copyLinkBtn}
               {deleteJobBtn}
             </div>

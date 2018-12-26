@@ -3,7 +3,7 @@ import "./Navbar.css";
 
 const Navbar = props => {
   const goHome = () => {
-    props.history.push("/company");
+    props.history.push("/company/dashboard");
   }
 
   return (

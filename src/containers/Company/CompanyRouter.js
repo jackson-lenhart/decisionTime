@@ -3,7 +3,7 @@ import { Router } from "react-router";
 import { Route } from "react-router-dom";
 
 import CompanyLogin from "./CompanyLogin/CompanyLogin";
-import Company from "./CompanyIndex/Company";
+import Applicants from "./Applicants";
 import CompanyNav from "./CompanyNav/CompanyNav";
 import Jobs from "./Jobs";
 import ApplicantProfile from "./ApplicantProfile/ApplicantProfile";
@@ -54,7 +54,7 @@ class CompanyRouter extends Component {
 							<div>
 								<Navbar history={ history } logout={ this.logout } />
 								<CompanyNav />
-								<Route exact path="/company" component={ Company } />
+								<Route exact path="/company/applicants" component={ Applicants } />
                 <Route path="/company/dashboard" component={ Dashboard } />
 								<Route path="/company/jobs" component={ Jobs } />
 								<Route path="/company/applicant/:applicantId" component={ ApplicantProfile } />

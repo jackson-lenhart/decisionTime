@@ -28,22 +28,15 @@ class JobDescript extends Component {
       });
     }
 
+    // TODO: Optimize! We should only be making one trip to the server here
     fetch(`/api/job/${this.companyId}/${this.jobId}`)
-      .then(res => res.json())
-      .then(data => {
-        this.setState({
-          isLoading: false,
-          title: data.title,
-          description: data.description,
-          companyName: data.companyName
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        this.setState({
-          isLoading: false,
-          isError: true
-        });
+    .then(res => res.json())
+    .then(data => {
+      this.setState({
+        isLoading: false,
+        title: data.title,
+        description: data.description,
+        companyName: data.companyName
       });
 
       // analytics
@@ -54,18 +47,24 @@ class JobDescript extends Component {
         method: 'POST',
         body: JSON.stringify({
           companyId: this.companyId,
-          jobId: this.jobId
+          jobId: this.jobId,
+          jobTitle: data.title
         })
       };
-      fetch('/api/analytics/', options)
-      .then(res => {
-        if (res.status !== 200) {
-          console.error('Could not post visit data');
-        }
-      })
-      .catch(err => {
-        console.error(err);
-      })
+      return fetch('/api/analytics/', options);
+    })
+    .then(res => {
+      if (res.status !== 200) {
+        console.error('Could not post visit data');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      this.setState({
+        isLoading: false,
+        isError: true
+      });
+    });
   }
 
   routeToApplication() {

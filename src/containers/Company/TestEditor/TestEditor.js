@@ -26,6 +26,7 @@ class TestEditor extends Component {
     this.deleteExam = this.deleteExam.bind(this);
     this.createQuestion = this.createQuestion.bind(this);
     this.editQuestion = this.editQuestion.bind(this);
+    this.deleteQuestion = this.deleteQuestion.bind(this);
   }
 
   componentDidMount() {
@@ -219,6 +220,44 @@ class TestEditor extends Component {
     }
   }
 
+  deleteQuestion(id) {
+    const { exams, viewingExamId } = this.state;
+    const exam = exams.find(ex => ex._id === viewingExamId);
+    if (exam && exam.questions) {
+      const options = {
+        headers: {
+          'Authorization': `Bearer ${this.props.token}`,
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          screeningId: exam._id,
+          questions: exam.questions.filter(q => q._id !== id)
+        })
+      };
+      this.toggleSpinner().then(_ =>
+        fetch('/api/screening/edit', options)
+      )
+      .then(res => res.json())
+      .then(screening => {
+        this.setState(prevState => ({
+          exams: prevState.exams.map(ex =>
+            ex._id === screening._id ? screening : ex
+          )
+        }), () => {
+          this.toggleSpinner();
+          // toggle off edit question somehow
+        });
+      })
+      .catch(err => {
+        this.setState({ isError: true });
+        console.error(err);
+      });
+    } else {
+      this.setState({ isError: true });
+    }
+  }
+
   toggleCreateQuestion() {
     this.setState(prevState => ({
       createQuestionMounted: !prevState.createQuestionMounted
@@ -262,42 +301,46 @@ class TestEditor extends Component {
           test={this.state.exams.find(x => x._id === this.state.viewingExamId)}
           jobId={this.props.job._id}
           editQuestion={this.editQuestion}
+          deleteQuestion={this.deleteQuestion}
           token={this.props.token}
         />
       );
     } else {
       questionList = (
         <h3 style={{ paddingTop: "10px" }}>
-          There are no questions for this job position yet. Create some
-          questions!
+          There are no exams for this job position yet. Create some
+          exams!
         </h3>
       );
     }
 
+    // TODO: Clean this up
     let createQuestionBtn = "";
     let createQuestion = "";
-    if (!this.state.createQuestionMounted) {
-      createQuestionBtn = (
-        <button
-          style={{ color: "purple" }}
-          className="btn btn-light"
-          type="button"
-          onClick={this.toggleCreateQuestion}
-        >
-          <i className="fas fa-plus text-success mr-1" />
-          Add New Question
-        </button>
-      );
-    } else {
-      createQuestion = (
-        <CreateQuestion
-          test={this.props.job.test}
-          jobId={this.props.job._id}
-          createQuestion={this.createQuestion}
-          toggleCreateQuestion={this.toggleCreateQuestion}
-          token={this.props.token}
-        />
-      );
+    if (viewingExamId !== "0") {
+      if (!this.state.createQuestionMounted) {
+        createQuestionBtn = (
+          <button
+            style={{ color: "purple" }}
+            className="btn btn-light"
+            type="button"
+            onClick={this.toggleCreateQuestion}
+          >
+            <i className="fas fa-plus text-success mr-1" />
+            Add New Question
+          </button>
+        );
+      } else {
+        createQuestion = (
+          <CreateQuestion
+            test={this.props.job.test}
+            jobId={this.props.job._id}
+            createQuestion={this.createQuestion}
+            toggleCreateQuestion={this.toggleCreateQuestion}
+            token={this.props.token}
+          />
+        );
+      }
     }
 
     return (

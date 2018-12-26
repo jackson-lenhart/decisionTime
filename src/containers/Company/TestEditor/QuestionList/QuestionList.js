@@ -15,6 +15,7 @@ class QuestionList extends Component {
         token={props.token}
         jobId={props.jobId}
         editQuestion={props.editQuestion}
+        deleteQuestion={this.props.deleteQuestion}
         test={test}
       />
     ));
