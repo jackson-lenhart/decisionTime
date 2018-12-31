@@ -7,7 +7,7 @@ const CompanyNav = () => {
     <div className="topcompanynav">
       <div>
         <div>
-          <Link to="/company/dashboard">Dashboard</Link>
+          <Link to="/company/">Dashboard</Link>
         </div>
         <div>
           <Link to="/company/applicants">Applicants</Link>
