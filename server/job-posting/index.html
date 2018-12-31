@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Job Posting on Decision Time</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+
+      .jobdescript {
+        background-color: #d4d4d6;
+        width: 80%;
+        margin: 0px auto;
+        padding: 10px;
+        box-shadow: 2px 2px 1px 0px rgba(0, 0, 0, 0.75);
+      }
+
+      .jobdescriptbtn {
+        padding: 10px;
+        cursor: pointer;
+        color: purple;
+      }
+
+      .descriptionTop {
+        color: purple;
+      }
+
+      .desciption-container {
+        text-align: left;
+        width: 100%;
+        whiteSpace: pre-wrap;
+      }
+
+      .btn-container {
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Content generated with data from server will be inserted in various tags below -->
+    <div class="jobdescript">
+      <div class="descriptionTop">
+        <!-- Replace w/ company name -->
+        <h3 id="company-name"></h3>
+        <p>
+                                       <!-- Replace w/ job title -->
+          Position being applied for - <strong id="job-title"></strong>
+        </p>
+      </div>
+      <h5>DESCRIPTION</h5>
+      <pre class="description-container">
+        <!-- Replace w/ job description -->
+        <p id="job-description"></p>
+      </pre>
+      <div class="btn-container">
+        <!-- Replace w/ href to application w/ companyId & jobId -->
+        <a id="link-to-apply">
+          <button type="button" class="jobdescriptbtn">
+            Apply for this job
+          </button>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

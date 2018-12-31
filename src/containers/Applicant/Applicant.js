@@ -18,29 +18,31 @@ class Applicant extends Component {
       buttonClicked: false
     };
 
-    this.companyName = props.match.params.companyName;
-    this.jobId = props.match.params.jobId;
-    this.id = props.match.params.id;
+    this.token = props.match.params.token;
   }
 
-  componentDidMount() {
-    if (!this.id) {
-      this.props.history.push("/");
-      return;
-    }
+  async componentDidMount() {
+    const options = {
+      headers: {
+        'Authorization': `Bearer ${this.token}`
+      }
+    };
 
-    fetch(`/api/applicant/${this.id}`)
-      .then(res => {
-        return res.status === 403 ? Promise.reject("Auth denied") : res.json();
-      })
-      .then(applicant => {
-        if (applicant.status === 'COMPLETE') {
+    try {
+      const response = await fetch('/api/applicant/gateway', options)
+      const applicant = await response.json();
+
+      switch (applicant.status) {
+        case 'COMPLETE':
+          // TODO: Maybe get rid of all these setStates
+          // and have a render function that switches on applicant.status
           this.setState({
             isLoading: false,
             isAuth: true,
             isCompleted: true
           });
-        } else if (applicant.status === 'BEGUN_EXAM') {
+          break;
+        case 'BEGUN_EXAM':
           this.setState(
             {
               applicant,
@@ -51,27 +53,46 @@ class Applicant extends Component {
             },
             this.changePageHandler
           );
-        } else {
-          // Here we haven't yet begun the test
+          break;
+        case 'VERIFIED':
           this.setState({
             applicant,
             exam: applicant.exam,
             isLoading: false,
             isAuth: true
           });
-        }
-      })
-      .catch(err => console.error(err));
+          break;
+        case 'NOT_VERIFIED':
+          const res = await fetch('/api/applicant/verify', options);
+
+          if (res.status === 200) {
+            this.setState({
+              applicant: {
+                ...applicant,
+                status: 'VERIFIED'
+              },
+              exam: applicant.exam,
+              isLoading: false,
+              isAuth: true
+            });
+          } else {
+            throw new Error(`Unexpected status code on verification ${res.status}`);
+          }
+          break;
+        default:
+          throw new Error(`Applicant status ${applicant.status} not in status enum`);
+      }
+    } catch (err) {
+      this.setState({ isError: true });
+      console.error(err);
+    }
   }
 
   // we may want to put this in TestIntro at some point?
   startTest = () => {
-    if (!this.id) {
-      this.props.history.push("/");
-      return;
-    }
 
-    fetch(`/api/applicant/test-timestamp/${this.id}`)
+    // TODO: Make this use token as well
+    fetch(`/api/applicant/test-timestamp/${this.state.applicant._id}`)
       .then(res => {
         if (res.status === 200) {
           this.changePageHandler();
@@ -129,7 +150,7 @@ class Applicant extends Component {
       />
     ) : (
       <Test
-        id={this.id}
+        id={this.state.applicant.id}
         test={this.state.exam}
         secondsElapsed={this.state.secondsElapsed}
         applicant={this.state.applicant}

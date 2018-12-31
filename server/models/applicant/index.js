@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import timestamps from 'mongoose-timestamp';
 
 // child schema
-import experienceSchema from './sub-schema/experience';
-import educationSchema from './sub-schema/education';
+// import experienceSchema from './sub-schema/experience';
+// import educationSchema from './sub-schema/education';
 import questionSchema from '../screening/sub-schema/question';
 
 const applicantSchema = mongoose.Schema({
@@ -11,15 +11,7 @@ const applicantSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true
   },
-  companyName: {
-    type: String,
-    required: true
-  },
   jobId: {
-    type: String,
-    required: true
-  },
-  jobTitle: {
     type: String,
     required: true
   },
@@ -37,27 +29,13 @@ const applicantSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['INITIALIZED', 'BEGUN_EXAM', 'COMPLETE'],
+    enum: ['NOT_VERIFIED', 'VERIFIED', 'BEGUN_EXAM', 'COMPLETE'],
     required: true
   },
   exam: {
     type: [questionSchema],
     required: true
   },
-  address: String,
-  city: String,
-  state: String,
-  zipCode: String,
-  phone: String,
-  experience: [experienceSchema],
-  education: [educationSchema],
-  resumeUploaded: Boolean,
-  coverLetter: String,
-  salaryRequirements: String,
-  isOver18: Boolean,
-  isLegal: Boolean,
-  isFelon: Boolean,
-  felonForm: String,
   testTimestamp: Number
 });
 

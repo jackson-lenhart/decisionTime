@@ -14,15 +14,26 @@ class IndividualApplicant extends Component {
     this.token = localStorage.getItem("token");
   }
 
-  // this is kind of lol. Will probably inline this later leaving it now for lulz
-  completionHandler = () => {
+  completionHandler() {
     const { status } = this.props.applicant;
-    if (status === 'COMPLETE') {
-      return <p style={{ color: "green" }}>Complete!</p>;
-    } else if (status === 'BEGUN_EXAM') {
-      return <p style={{ color: "red" }}>In Progress</p>;
+    switch (status) {
+      case 'COMPLETE':
+        return <p style={{ color: "green" }}>Complete!</p>;
+        break;
+      case 'BEGUN_EXAM':
+        return <p style={{ color: "orange" }}>In Progress</p>;
+        break;
+      case 'VERIFIED':
+        return <p style={{ color: "blue" }}>Verified</p>;
+        break;
+      case 'NOT_VERIFIED':
+        return <p style={{ color: "red" }}>Not Verified</p>;
+        break;
+      default:
+        console.error('Status value ' + status + 'not in status enum');
+        return '';
     }
-  };
+  }
 
   render() {
     const { applicant } = this.props;

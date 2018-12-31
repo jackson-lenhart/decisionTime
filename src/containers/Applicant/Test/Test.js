@@ -11,6 +11,9 @@ class Test extends React.Component {
       secondsElapsed: props.secondsElapsed
     };
 
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+
     this.incrementer = null;
   }
 
@@ -24,15 +27,18 @@ class Test extends React.Component {
     );
   }
 
-  handleChange = e =>
-    this.setState({
-      answers: {
-        ...this.state.answers,
-        [e.target.name]: e.target.value
-      }
-    });
+  handleChange(e) {
+    const target = e.target;
 
-  handleSubmit = () => {
+    this.setState(prevState => ({
+      answers: {
+        ...prevState.answers,
+        [target.name]: target.value
+      }
+    }));
+  }
+
+  handleSubmit() {
     clearInterval(this.incrementer);
 
     const answers = this.props.test.map(q => ({
@@ -49,7 +55,7 @@ class Test extends React.Component {
       body: JSON.stringify({
         answers,
         questions: this.props.test,
-        jobId: this.props.jobId,
+        jobId: this.props.applicant.jobId,
         applicantId: this.props.applicant._id,
         secondsElapsed: this.state.secondsElapsed
       })
@@ -69,8 +75,9 @@ class Test extends React.Component {
       .catch(err => console.error(err));
   };
 
-  formattedSeconds = sec =>
-    Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2);
+  formattedSeconds(sec) {
+    return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2);
+  }
 
   render() {
     const test = this.props.test.map((x, i) => (

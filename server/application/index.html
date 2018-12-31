@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Application Form on Decision Time</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        position: relative;
+        min-height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .application-header {
+        font-size: 65px;
+        color: purple;
+        padding-left: 20px;
+        border-bottom: solid purple 5px;
+        width: 50%;
+      }
+
+      .form-group {
+        background-color: #dddddd;
+        width: 80%;
+        margin: 0px auto;
+        padding-top: 10px;
+        box-shadow: 2px 2px 1px 0px rgba(0, 0, 0, 0.75);
+      }
+
+      .input-group {
+        margin: 10px 20px;
+      }
+
+      .submit-form {
+        padding-left: 30px;
+        padding-right: 30px;
+        padding-bottom: 10px;
+      }
+
+      .submit-btn {
+        padding: 10px 30px;
+        color: purple;
+      }
+    </style>
+
+    <script>
+      'use strict';
+
+      window.onload = function() {
+        // Programmatically add url params to form action.
+        var url = new URL(window.location.href);
+        var pathArr = url.pathname.split('/');
+        var companyId = pathArr[2];
+        var jobId = pathArr[3];
+        var form = document.getElementById('application-form');
+        form.action = '/api/applicant/' + companyId + '/' + jobId;
+        form.method = 'POST';
+      }
+    </script>
+  </head>
+  <body>
+    <h3 class="application-header">Application Form</h3>
+    <form id="application-form">
+      <div class="form-group">
+        <div class="input-group">
+          <label for="firstName">First Name</label>
+          <input type="text" name="firstName">
+        </div>
+        <div class="input-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" name="lastName">
+        </div>
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="text" name="email">
+        </div>
+        <div class="submit-form">
+          <button class="submit-btn">Submit</button>
+        </div>
+      </div>
+    </form>
+  </body>
+</html>
